@@ -1,0 +1,4 @@
+interface:
+  display_name: "Workflow Review Doc"
+  short_description: "通用工作文档审阅与 reviewer 提示模板 skill"
+  default_prompt: "Use $workflow-review-doc to review a spec, plan, RFC, ADR, proposal, or handoff document before the next step."
