@@ -1,0 +1,29 @@
+# macOS
+.DS_Store
+
+# Editors
+.idea/
+.vscode/
+
+# Dependencies
+node_modules/
+
+# Build outputs
+dist/
+build/
+coverage/
+
+# Python caches
+__pycache__/
+.pytest_cache/
+
+# Logs
+*.log
+
+# Environment files
+.env
+.env.*
+
+# Local workflow artifacts
+.workflow/
+/tmp
