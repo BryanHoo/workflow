@@ -94,6 +94,7 @@ Default to direct implementation with a minimal mental or written plan when the 
 ### Medium or large implementation
 
 Use heavier workflows only when they add real value:
+
 - `workflow-brainstorming` for unclear requirements, important trade-offs, or larger design work
 - `workflow-writing-plans` when sequencing, coordination, or handoff needs a real plan
 - `workflow-executing-plans` for complex but mostly sequential work
@@ -108,15 +109,15 @@ Always use `workflow-verification-before-completion` before claiming success, co
 
 These thoughts mean STOP and re-triage:
 
-| Thought | Reality |
-| --- | --- |
-| "This is just a simple question" | Decide whether it is read-only, debugging, or implementation. |
-| "I need a full workflow for safety" | Use the lightest path that still covers the risk. |
-| "Let me skip the relevant skill" | If a skill fits, use it. |
-| "I remember this skill" | Skills evolve. Read current version. |
-| "Everything should go through brainstorming" | Lightweight changes usually should not. |
-| "Everything should use subagents" | Parallelism only helps when tasks are independent. |
-| "Let's create docs just in case" | Persist docs only when they help execution or handoff. |
+| Thought                                      | Reality                                                       |
+| -------------------------------------------- | ------------------------------------------------------------- |
+| "This is just a simple question"             | Decide whether it is read-only, debugging, or implementation. |
+| "I need a full workflow for safety"          | Use the lightest path that still covers the risk.             |
+| "Let me skip the relevant skill"             | If a skill fits, use it.                                      |
+| "I remember this skill"                      | Skills evolve. Read current version.                          |
+| "Everything should go through brainstorming" | Lightweight changes usually should not.                       |
+| "Everything should use subagents"            | Parallelism only helps when tasks are independent.            |
+| "Let's create docs just in case"             | Persist docs only when they help execution or handoff.        |
 
 ## Skill Priority
 
@@ -127,6 +128,7 @@ When multiple skills could apply, use this order:
 3. **Verification / review skills last** - these confirm the result before completion
 
 Examples:
+
 - "Explain this module" → direct read-only work
 - "Fix this failing test, not sure why" → workflow-systematic-debugging first
 - "Update copy in one component" → lightweight implementation
