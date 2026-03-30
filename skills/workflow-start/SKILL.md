@@ -47,9 +47,10 @@ digraph skill_flow {
     "Might any skill apply?" [shape=diamond];
     "Invoke Skill tool" [shape=box];
     "Classify task" [shape=diamond];
-    "Read-only or explanation" [shape=box];
-    "Bug investigation before edits" [shape=box];
-    "Lightweight implementation" [shape=box];
+    "Read-only analysis" [shape=box];
+    "Debugging or failure investigation" [shape=box];
+    "Direct local implementation" [shape=box];
+    "Planned implementation" [shape=box];
     "Design or scope unclear?" [shape=diamond];
     "Use workflow-brainstorming" [shape=box];
     "Need a real execution plan?" [shape=diamond];
@@ -62,10 +63,11 @@ digraph skill_flow {
     "Might any skill apply?" -> "Invoke Skill tool" [label="yes"];
     "Might any skill apply?" -> "Classify task" [label="no"];
     "Invoke Skill tool" -> "Classify task";
-    "Classify task" -> "Read-only or explanation" [label="read-only"];
-    "Classify task" -> "Bug investigation before edits" [label="debugging"];
-    "Classify task" -> "Lightweight implementation" [label="small local change"];
-    "Classify task" -> "Design or scope unclear?" [label="substantial implementation"];
+    "Classify task" -> "Read-only analysis" [label="read-only"];
+    "Classify task" -> "Debugging or failure investigation" [label="bug/regression/failure"];
+    "Classify task" -> "Direct local implementation" [label="small local change"];
+    "Classify task" -> "Planned implementation" [label="cross-layer or non-trivial"];
+    "Planned implementation" -> "Design or scope unclear?";
     "Design or scope unclear?" -> "Use workflow-brainstorming" [label="yes"];
     "Design or scope unclear?" -> "Need a real execution plan?" [label="no"];
     "Use workflow-brainstorming" -> "Need a real execution plan?";
@@ -78,6 +80,8 @@ digraph skill_flow {
 ```
 
 ## Routing Rules
+
+Use `references/task-routing.md` as the routing source of truth. Reuse its task classes and shared routing signals rather than inventing a fresh taxonomy in the moment.
 
 ### Project spec context
 
@@ -95,15 +99,15 @@ If code has already changed in a repo with `docs/workflow/spec/`, use `workflow-
 
 Handle directly when the task is analysis, explanation, review without edits, or code reading.
 
-### Bug investigation
+### Debugging or failure investigation
 
 Use `workflow-systematic-debugging` before proposing fixes when diagnosing a real failure and implementation has not begun yet.
 
-### Lightweight implementation
+### Direct local implementation
 
-Default to direct implementation with a minimal mental or written plan when the task is local and verification is direct. Do not force brainstorming, standalone specs, standalone plan files, worktrees, or subagents onto routine changes.
+Default to direct implementation with a minimal mental or written plan when the task is local and verification is direct. If the task changes behavior and a failing automated check is practical, prefer `workflow-test-driven-development` rather than making ad hoc edits first. Do not force brainstorming, standalone specs, standalone plan files, worktrees, or subagents onto routine changes.
 
-### Medium or large implementation
+### Planned implementation
 
 Use heavier workflows only when they add real value:
 
@@ -113,6 +117,18 @@ Use heavier workflows only when they add real value:
 - `workflow-project-spec` whenever repo-specific implementation context should be initialized, loaded, or refreshed from `docs/workflow/spec/`
 - `workflow-subagent-driven-development` or `workflow-dispatching-parallel-agents` when tasks are genuinely independent and parallelism is useful
 - `workflow-using-git-worktrees` when isolation materially reduces risk
+
+Treat contract, schema, config, and cross-layer signals as strong reasons to enter this path even if the raw file count still looks small.
+
+### Shared Routing Signals
+
+When file paths, diff context, or repo-aware signals are available, reuse the same dimensions exposed later by `workflow-project-check`:
+
+- `docs_only` and `test_only` usually stay light
+- `cross_layer`, `contract_change`, `schema_change`, and most `config_change` work should not stay on the lightest path
+- `shared_code_change` means the blast radius may be larger than the diff size suggests
+
+This keeps entry routing and final verification aligned around one vocabulary.
 
 ### Before completion
 

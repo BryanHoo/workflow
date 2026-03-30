@@ -14,6 +14,8 @@ This skill does not replace tests, lint, or typecheck. It decides:
 - which manual cross-layer checks are required
 - whether reusable lessons should be written back into spec
 
+Its classification vocabulary is also suitable upstream. When task paths or likely edit areas are already known, `workflow-start` and planning skills may reuse the same risk tags to choose an entry path before implementation begins.
+
 ## Core Rules
 
 - Use this skill after code changes exist or when reviewing a diff.

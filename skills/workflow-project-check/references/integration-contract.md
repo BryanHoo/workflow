@@ -19,6 +19,14 @@ Call `workflow-project-check` after implementation checkpoints stabilize and bef
 
 Use the likely verification commands and likely spec update targets to strengthen the plan's verification section.
 
+### `workflow-start`
+
+When file paths, repo shape, or a partial diff are already known early, `workflow-start` may reuse the same scope language from `workflow-project-check` to decide whether work stays direct or upgrades into a planned path.
+
+- `docs_only` and `test_only` usually stay light
+- `cross_layer`, `contract_change`, `schema_change`, and most `config_change` work should upgrade
+- `shared_code_change` should raise the assumed blast radius even when the diff is small
+
 ## Downstream Skill
 
 ### `workflow-verification-before-completion`
