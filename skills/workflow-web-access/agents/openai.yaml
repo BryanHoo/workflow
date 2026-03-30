@@ -1,0 +1,4 @@
+interface:
+  display_name: "Workflow Web Access"
+  short_description: "公开网页优先走 web，必要时升级到本机 Chrome CDP 的联网技能"
+  default_prompt: "Use $workflow-web-access when a task needs current public web information, page reading, or browser interaction in workflow; start with the web tool and escalate to CDP only when lightweight retrieval is insufficient."
