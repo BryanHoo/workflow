@@ -29,6 +29,8 @@ Review for:
 
 Raise substantive gaps before implementation. Do not blindly execute a bad plan.
 
+If `docs/workflow/spec/` exists, invoke `workflow-project-spec` in load mode before implementation starts. Use its bundled `scripts/detect_spec_scope.py` to resolve the relevant spec files, then read those files before editing code.
+
 ## Step 2: Execute Sequentially
 
 For each task or checkpoint:
@@ -40,6 +42,9 @@ For each task or checkpoint:
 
 Prefer targeted verification during execution and broader verification before completion.
 
+If the task establishes a reusable convention, contract, or gotcha, update the relevant `docs/workflow/spec/` file before handoff by using `workflow-project-spec` in update mode.
+If `docs/workflow/spec/` exists and code changed, use `workflow-project-check` before final completion claims so the final verification scope comes from the actual diff, not just the original plan.
+
 ## Step 3: Escalate Only When Needed
 
 Switch away from this skill only if the task materially changes:
@@ -50,6 +55,7 @@ Switch away from this skill only if the task materially changes:
 ## Step 4: Complete Development
 
 Before making success claims:
+- if `docs/workflow/spec/` exists, use `workflow-project-check`
 - use `workflow-verification-before-completion`
 
 If the work is ready for branch completion or handoff:
@@ -78,5 +84,6 @@ Ask for clarification rather than guessing.
 Related workflow skills:
 - `workflow-writing-plans` - creates or refines the plan this skill executes
 - `workflow-systematic-debugging` - use when execution becomes real diagnosis work
+- `workflow-project-check` - derives the final project-aware verification scope from the changed files
 - `workflow-verification-before-completion` - required before claiming success
 - `workflow-finishing-a-development-branch` - close out the branch after the work is verified

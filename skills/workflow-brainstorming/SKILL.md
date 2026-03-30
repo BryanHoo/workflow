@@ -66,7 +66,7 @@ Persist a design doc only when one of these is true:
 - the design will clearly help handoff, review, or future maintenance
 
 Default location when saving:
-- `docs/workflow/specs/YYYY-MM-DD-<topic>-design.md`
+- `docs/workflow/prd/YYYY-MM-DD-<topic>-design.md`
 
 If no durable artifact is needed, keep the design in the conversation and move forward.
 

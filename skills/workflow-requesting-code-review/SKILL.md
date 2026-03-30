@@ -26,6 +26,8 @@ Dispatch workflow-code-reviewer subagent to catch issues before they cascade. Th
 - tiny local changes with clear scope and direct verification
 - copy, config, or similarly low-risk edits unless the user asks for review
 
+If the repo contains `docs/workflow/spec/` and code changed, run `workflow-project-check` before requesting review so the reviewer sees a diff that has already passed the project-aware verification pass.
+
 ## How to Request
 
 **1. Get git SHAs:**
@@ -50,6 +52,16 @@ Use Task tool with workflow-code-reviewer type, fill template at `code-reviewer.
 - Fix Important issues before proceeding
 - Note Minor issues for later
 - Push back if reviewer is wrong (with reasoning)
+
+## Project-Aware Review Prep
+
+Before requesting review in a repo with `docs/workflow/spec/`:
+- use `workflow-project-check`
+- run the required commands it identifies
+- complete its manual checks
+- update `docs/workflow/spec/` first if it says spec sync is required
+
+Review should inspect a technically prepared diff, not substitute for missing local verification.
 
 ## Example
 
@@ -89,6 +101,7 @@ You: [Fix progress indicators]
 **Executing Plans:**
 - Review after each batch (3 tasks)
 - Get feedback, apply, continue
+- If `docs/workflow/spec/` exists, run `workflow-project-check` before requesting the review
 
 **Ad-Hoc Development:**
 - Review before merge

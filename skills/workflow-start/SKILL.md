@@ -79,6 +79,18 @@ digraph skill_flow {
 
 ## Routing Rules
 
+### Project spec context
+
+If the target repo contains `docs/workflow/spec/`, use `workflow-project-spec` before substantial planning or implementation:
+- initialize it when the user wants project-spec support but the directory does not exist yet
+- load relevant spec files before writing plans or code
+- update relevant spec files after reusable conventions or contracts are discovered
+
+If code has already changed in a repo with `docs/workflow/spec/`, use `workflow-project-check` before completion claims, branch handoff, or review requests:
+- classify the change scope
+- identify the relevant spec files and verification commands
+- decide whether cross-layer checks or spec updates are required
+
 ### Read-only tasks
 
 Handle directly when the task is analysis, explanation, review without edits, or code reading.
@@ -98,12 +110,14 @@ Use heavier workflows only when they add real value:
 - `workflow-brainstorming` for unclear requirements, important trade-offs, or larger design work
 - `workflow-writing-plans` when sequencing, coordination, or handoff needs a real plan
 - `workflow-executing-plans` for complex but mostly sequential work
+- `workflow-project-spec` whenever repo-specific implementation context should be initialized, loaded, or refreshed from `docs/workflow/spec/`
 - `workflow-subagent-driven-development` or `workflow-dispatching-parallel-agents` when tasks are genuinely independent and parallelism is useful
 - `workflow-using-git-worktrees` when isolation materially reduces risk
 
 ### Before completion
 
 Always use `workflow-verification-before-completion` before claiming success, completion, or passing status.
+When `docs/workflow/spec/` exists and code changed, use `workflow-project-check` before that final verification gate.
 
 ## Red Flags
 
@@ -135,6 +149,7 @@ Examples:
 - "Design and build a multi-file feature" → workflow-brainstorming, then workflow-writing-plans if needed
 - "Execute this clear plan in one session" → workflow-executing-plans
 - "Several independent tasks" → subagent or parallel workflow if support is reliable
+- "Work is implemented and needs project-aware verification" → workflow-project-check, then workflow-verification-before-completion
 
 ## Skill Types
 

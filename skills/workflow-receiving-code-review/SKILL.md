@@ -110,6 +110,8 @@ FOR multi-item feedback:
   4. Verify no regressions
 ```
 
+If the repo contains `docs/workflow/spec/` and review feedback changed code meaningfully, rerun `workflow-project-check` before final completion claims or before requesting another round of review.
+
 ## When To Push Back
 
 Push back when:
@@ -172,6 +174,7 @@ State the correction factually and move on.
 | Avoiding pushback | Technical correctness > comfort |
 | Partial implementation | Clarify all items first |
 | Can't verify, proceed anyway | State limitation, ask for direction |
+| Fixing comments but skipping project-aware checks | Rerun `workflow-project-check` when feedback changes the effective diff |
 
 ## Real Examples
 

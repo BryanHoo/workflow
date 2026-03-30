@@ -27,6 +27,7 @@ If you haven't run the verification command in this message, you cannot claim it
 BEFORE claiming any status or expressing satisfaction:
 
 1. IDENTIFY: What command proves this claim?
+   - If `docs/workflow/spec/` exists and code changed, use `workflow-project-check` first to determine the right command set and manual checks
 2. RUN: Execute the FULL command (fresh, complete)
 3. READ: Full output, check exit code, count failures
 4. VERIFY: Does output confirm the claim?
@@ -44,6 +45,7 @@ Skip any step = lying, not verifying
 | Tests pass | Test command output: 0 failures | Previous run, "should pass" |
 | Linter clean | Linter output: 0 errors | Partial check, extrapolation |
 | Build succeeds | Build command: exit 0 | Linter passing, logs look good |
+| Project-aware completion | `workflow-project-check` plan + its required evidence | Running one convenient command and assuming the rest |
 | Bug fixed | Test original symptom: passes | Code changed, assumed fixed |
 | Regression test works | Red-green cycle verified | Test passes once |
 | Agent completed | VCS diff shows changes | Agent reports "success" |
@@ -99,6 +101,12 @@ Skip any step = lying, not verifying
 ❌ "Tests pass, phase complete"
 ```
 
+**Project-aware verification:**
+```
+✅ Use workflow-project-check → Run its required commands → Complete its manual checks → THEN claim completion
+❌ "Lint and one test passed, so this is done" (when spec-aware checks were required)
+```
+
 **Agent delegation:**
 ```
 ✅ Agent reports success → Check VCS diff → Verify changes → Report actual state
@@ -123,6 +131,8 @@ From 24 failure memories:
 - Committing, PR creation, task completion
 - Moving to next task
 - Delegating to agents
+
+When `docs/workflow/spec/` exists and code changed, treat `workflow-project-check` as part of the required setup for this gate.
 
 **Rule applies to:**
 - Exact phrases

@@ -78,6 +78,7 @@ Task("Fix tool-approval-race-conditions.test.ts failures")
 When agents return:
 - Read each summary
 - Verify fixes don't conflict
+- If the repo contains `docs/workflow/spec/`, use `workflow-project-check` on the aggregate diff
 - Run full test suite
 - Integrate all changes
 
@@ -169,8 +170,9 @@ Agent 3 → Fix tool-approval-race-conditions.test.ts
 After agents return:
 1. **Review each summary** - Understand what changed
 2. **Check for conflicts** - Did agents edit same code?
-3. **Run full suite** - Verify all fixes work together
-4. **Spot check** - Agents can make systematic errors
+3. **Use workflow-project-check** when `docs/workflow/spec/` applies - derive the project-aware verification scope from the aggregate diff
+4. **Run full suite** - Verify all fixes work together
+5. **Spot check** - Agents can make systematic errors
 
 ## Real-World Impact
 

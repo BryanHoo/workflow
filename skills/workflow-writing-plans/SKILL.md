@@ -11,6 +11,9 @@ Write plans that are just detailed enough to guide correct implementation.
 
 **Announce at start:** "I'm using the workflow-writing-plans skill to create the implementation plan."
 
+If the repo contains `docs/workflow/spec/`, announce that you are also using `workflow-project-spec` to load the relevant project spec before finalizing the plan.
+If the work will end with project-aware verification, announce that `workflow-project-check` will be used to derive the final verification scope from the actual diff.
+
 Do not create a heavyweight plan for a task that can be implemented safely with a short checklist.
 
 ## Choose the Right Plan Weight
@@ -49,6 +52,12 @@ Before listing tasks, map:
 - which shared boundaries or APIs are at risk
 - what verification will prove the work is done
 
+When `docs/workflow/spec/` exists:
+- invoke `workflow-project-spec` in load mode and run its bundled `scripts/detect_spec_scope.py`
+- read the returned index and detailed files before fixing scope, risks, and verification
+- treat those files as project-specific constraints for the plan
+- leave room in the verification section for `workflow-project-check` to refine the final command set from the real changed files
+
 Prefer plans that preserve local reasoning:
 - group changes by responsibility
 - keep related files together
@@ -80,6 +89,8 @@ Avoid:
 **Risks:** [Primary technical or product risks]
 
 **Verification:** [Commands, scenarios, or checks that prove success]
+
+**Project Check:** [How `workflow-project-check` will be used before completion when `docs/workflow/spec/` exists]
 
 ## Task 1: [Name]
 

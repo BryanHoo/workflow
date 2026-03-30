@@ -63,6 +63,7 @@ digraph process {
 
     "Read plan, extract all tasks with full text, note context, create TodoWrite" [shape=box];
     "More tasks remain?" [shape=diamond];
+    "Run workflow-project-check on aggregate diff" [shape=box];
     "Dispatch final code reviewer subagent for entire implementation" [shape=box];
     "Use workflow-finishing-a-development-branch" [shape=box style=filled fillcolor=lightgreen];
 
@@ -82,7 +83,8 @@ digraph process {
     "Code quality reviewer subagent approves?" -> "Mark task complete in TodoWrite" [label="yes"];
     "Mark task complete in TodoWrite" -> "More tasks remain?";
     "More tasks remain?" -> "Dispatch implementer subagent (./implementer-prompt.md)" [label="yes"];
-    "More tasks remain?" -> "Dispatch final code reviewer subagent for entire implementation" [label="no"];
+    "More tasks remain?" -> "Run workflow-project-check on aggregate diff" [label="no"];
+    "Run workflow-project-check on aggregate diff" -> "Dispatch final code reviewer subagent for entire implementation";
     "Dispatch final code reviewer subagent for entire implementation" -> "Use workflow-finishing-a-development-branch";
 }
 ```
@@ -196,6 +198,7 @@ Code reviewer: ✅ Approved
 ...
 
 [After all tasks]
+[Run workflow-project-check on the aggregate diff]
 [Dispatch final code-reviewer]
 Final reviewer: All requirements met, ready to merge
 
@@ -270,6 +273,7 @@ Done!
 **Related workflow skills:**
 - **workflow-using-git-worktrees** - Use when isolated workspace materially reduces risk
 - **workflow-writing-plans** - Creates the plan this skill executes
+- **workflow-project-check** - Run on the aggregate diff before final handoff or branch completion
 - **workflow-requesting-code-review** - Code review template for reviewer subagents
 - **workflow-finishing-a-development-branch** - Complete development after all tasks
 

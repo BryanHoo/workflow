@@ -37,6 +37,8 @@ Stop. Don't proceed to Step 2.
 
 **If tests pass:** Continue to Step 2.
 
+If the repo contains `docs/workflow/spec/` and code changed, run `workflow-project-check` before presenting options. Use it to confirm that the final verification scope, manual cross-layer checks, and any required spec sync are complete.
+
 ### Step 2: Determine Base Branch
 
 ```bash
@@ -186,6 +188,7 @@ git worktree remove <worktree-path>
 
 **Always:**
 - Verify tests before offering options
+- Run `workflow-project-check` first when `docs/workflow/spec/` applies
 - Present exactly 4 options
 - Get typed confirmation for Option 4
 - Clean up worktree for Options 1 & 4 only
