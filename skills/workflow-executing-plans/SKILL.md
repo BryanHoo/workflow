@@ -1,70 +1,82 @@
 ---
 name: workflow-executing-plans
-description: Use when you have a written implementation plan to execute in a separate session with review checkpoints
+description: Use when you have a written or clearly stated implementation plan and the work is best executed in one session without heavy parallel coordination; this is the default execution path for complex but mostly sequential tasks
 ---
 
 # Executing Plans
 
 ## Overview
 
-Load plan, review critically, execute all tasks, report when complete.
+Load the plan, review it critically, execute the work, and verify each checkpoint before moving on.
 
 **Announce at start:** "I'm using the workflow-executing-plans skill to implement this plan."
 
-**Note:** Tell your human partner that Workflow works much better with access to subagents. The quality of its work will be significantly higher if run on a platform with subagent support (such as Claude Code or Codex). If subagents are available, use workflow-subagent-driven-development instead of this skill.
+This is the default execution path for non-trivial work that does **not** clearly benefit from subagent-driven parallelism.
 
-## The Process
+## Step 1: Load and Right-Size the Plan
 
-### Step 1: Load and Review Plan
-1. Read plan file
-2. Review critically - identify any questions or concerns about the plan
-3. If concerns: Raise them with your human partner before starting
-4. If no concerns: Create TodoWrite and proceed
+1. Read the plan or the explicit task list
+2. Check whether it is still the right size for the task
+3. If the work has collapsed into a lightweight local change, compress the plan and implement directly
+4. If the work is bigger or riskier than expected, pause and refine the plan before coding
 
-### Step 2: Execute Tasks
+Review for:
+- missing context
+- unclear boundaries
+- hidden risks
+- missing verification
+- opportunities to simplify the approach
 
-For each task:
-1. Mark as in_progress
-2. Follow each step exactly (plan has bite-sized steps)
-3. Run verifications as specified
-4. Mark as completed
+Raise substantive gaps before implementation. Do not blindly execute a bad plan.
 
-### Step 3: Complete Development
+## Step 2: Execute Sequentially
 
-After all tasks complete and verified:
-- Announce: "I'm using the workflow-finishing-a-development-branch skill to complete this work."
-- **REQUIRED SUB-SKILL:** Use workflow-finishing-a-development-branch
-- Follow that skill to verify tests, present options, execute choice
+For each task or checkpoint:
+1. mark it in progress
+2. implement the scoped change
+3. run the stated verification
+4. update the plan or notes if reality changed
+5. mark it complete only after evidence is in hand
+
+Prefer targeted verification during execution and broader verification before completion.
+
+## Step 3: Escalate Only When Needed
+
+Switch away from this skill only if the task materially changes:
+- use `workflow-subagent-driven-development` when the work breaks into genuinely independent chunks and parallel coordination is worth it
+- use `workflow-writing-plans` again if the plan no longer reflects reality
+- use `workflow-systematic-debugging` if execution turns into root-cause investigation
+
+## Step 4: Complete Development
+
+Before making success claims:
+- use `workflow-verification-before-completion`
+
+If the work is ready for branch completion or handoff:
+- announce: "I'm using the workflow-finishing-a-development-branch skill to complete this work."
+- use `workflow-finishing-a-development-branch`
 
 ## When to Stop and Ask for Help
 
-**STOP executing immediately when:**
-- Hit a blocker (missing dependency, test fails, instruction unclear)
-- Plan has critical gaps preventing starting
-- You don't understand an instruction
-- Verification fails repeatedly
+Stop and ask when:
+- a blocker prevents meaningful progress
+- the plan is missing critical decisions
+- verification keeps failing and the issue is no longer straightforward
+- the task boundary has clearly expanded beyond the original agreement
 
-**Ask for clarification rather than guessing.**
-
-## When to Revisit Earlier Steps
-
-**Return to Review (Step 1) when:**
-- Partner updates the plan based on your feedback
-- Fundamental approach needs rethinking
-
-**Don't force through blockers** - stop and ask.
+Ask for clarification rather than guessing.
 
 ## Remember
-- Review plan critically first
-- Follow plan steps exactly
-- Don't skip verifications
-- Reference skills when plan says to
-- Stop when blocked, don't guess
-- Never start implementation on main/master branch without explicit user consent
+
+- treat plans as guides, not scripts to follow blindly after reality changes
+- keep execution sequential unless parallelism is clearly beneficial
+- do not create a worktree by default; use one only when isolation helps
+- never start implementation on main/master without explicit user consent
 
 ## Integration
 
-**Required workflow skills:**
-- **workflow-using-git-worktrees** - REQUIRED: Set up isolated workspace before starting
-- **workflow-writing-plans** - Creates the plan this skill executes
-- **workflow-finishing-a-development-branch** - Complete development after all tasks
+Related workflow skills:
+- `workflow-writing-plans` - creates or refines the plan this skill executes
+- `workflow-systematic-debugging` - use when execution becomes real diagnosis work
+- `workflow-verification-before-completion` - required before claiming success
+- `workflow-finishing-a-development-branch` - close out the branch after the work is verified

@@ -1,6 +1,6 @@
 ---
 name: workflow-using-git-worktrees
-description: Use when starting feature work that needs isolation from current workspace or before executing implementation plans - creates isolated git worktrees with smart directory selection and safety verification
+description: Use when feature work genuinely needs isolation from the current workspace, parallel branch development, or a clean execution environment; do not use by default for routine local changes on the current branch
 ---
 
 # Using Git Worktrees
@@ -12,6 +12,15 @@ Git worktrees create isolated workspaces sharing the same repository, allowing w
 **Core principle:** Systematic directory selection + safety verification = reliable isolation.
 
 **Announce at start:** "I'm using the workflow-using-git-worktrees skill to set up an isolated workspace."
+
+## Use This Skill Only When Isolation Helps
+
+Good reasons to create a worktree:
+- current branch is dirty and unrelated changes would interfere
+- multiple branches or concurrent efforts need clean separation
+- the implementation is risky enough that starting from a clean workspace materially helps
+
+Do not create a worktree by default for small, local, low-risk changes that can safely happen on the current branch.
 
 ## Directory Selection Process
 
@@ -209,10 +218,9 @@ Ready to implement auth feature
 ## Integration
 
 **Called by:**
-- **workflow-brainstorming** (Phase 4) - REQUIRED when design is approved and implementation follows
-- **workflow-subagent-driven-development** - REQUIRED before executing any tasks
-- **workflow-executing-plans** - REQUIRED before executing any tasks
-- Any skill needing isolated workspace
+- any workflow that benefits from isolated workspace
+- `workflow-subagent-driven-development` when coordination risk warrants separation
+- `workflow-executing-plans` when a clean branch materially reduces risk
 
 **Pairs with:**
 - **workflow-finishing-a-development-branch** - REQUIRED for cleanup after work complete

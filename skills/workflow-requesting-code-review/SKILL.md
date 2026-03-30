@@ -1,6 +1,6 @@
 ---
 name: workflow-requesting-code-review
-description: Use when completing tasks, implementing major features, or before merging to verify work meets requirements
+description: Use when a change is major, risky, merge-bound, or otherwise likely to benefit from a fresh technical pass; optional for lightweight local changes with direct verification
 ---
 
 # Requesting Code Review
@@ -11,15 +11,20 @@ Dispatch workflow-code-reviewer subagent to catch issues before they cascade. Th
 
 ## When to Request Review
 
-**Mandatory:**
-- After each task in subagent-driven development
-- After completing major feature
+**Usually required:**
+- After completing a major or risky feature
 - Before merge to main
+- When a subagent-driven workflow defines review checkpoints
 
 **Optional but valuable:**
+- Before shipping medium-sized behavior changes
 - When stuck (fresh perspective)
 - Before refactoring (baseline check)
 - After fixing complex bug
+
+**Usually unnecessary:**
+- tiny local changes with clear scope and direct verification
+- copy, config, or similarly low-risk edits unless the user asks for review
 
 ## How to Request
 

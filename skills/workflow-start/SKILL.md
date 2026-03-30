@@ -1,6 +1,6 @@
 ---
 name: workflow-start
-description: Use when starting any conversation - establishes how to find and use skills, requiring Skill tool invocation before ANY response including clarifying questions
+description: Use when starting a conversation to triage the task, choose the lightest workflow that preserves quality, and invoke any relevant skills before acting
 ---
 
 <SUBAGENT-STOP>
@@ -8,11 +8,7 @@ If you were dispatched as a subagent to execute a specific task, skip this skill
 </SUBAGENT-STOP>
 
 <EXTREMELY-IMPORTANT>
-If you think there is even a 1% chance a skill might apply to what you are doing, you ABSOLUTELY MUST invoke the skill.
-
-IF A SKILL APPLIES TO YOUR TASK, YOU DO NOT HAVE A CHOICE. YOU MUST USE IT.
-
-This is not negotiable. This is not optional. You cannot rationalize your way out of this.
+If a skill clearly applies to the task, invoke it before acting. Do not skip relevant workflow skills because a task feels small or familiar.
 </EXTREMELY-IMPORTANT>
 
 ## Instruction Priority
@@ -39,68 +35,104 @@ Skills use Claude Code tool names. Non-CC platforms: see `references/codex-tools
 
 # Using Skills
 
+Read `references/task-routing.md` before choosing a heavy workflow. It defines the default lightweight path, escalation rules, and when parallelism is actually worth it.
+
 ## The Rule
 
-**Invoke relevant or requested skills BEFORE any response or action.** Even a 1% chance a skill might apply means that you should invoke the skill to check. If an invoked skill turns out to be wrong for the situation, you don't need to use it.
+**Invoke relevant or requested skills BEFORE substantial action.** Start by classifying the task, then choose the lightest workflow that still protects quality.
 
 ```dot
 digraph skill_flow {
     "User message received" [shape=doublecircle];
-    "About to EnterPlanMode?" [shape=doublecircle];
-    "Already brainstormed?" [shape=diamond];
-    "Invoke workflow-brainstorming skill" [shape=box];
     "Might any skill apply?" [shape=diamond];
     "Invoke Skill tool" [shape=box];
-    "Announce: 'Using [skill] to [purpose]'" [shape=box];
-    "Has checklist?" [shape=diamond];
-    "Create TodoWrite todo per item" [shape=box];
-    "Follow skill exactly" [shape=box];
-    "Respond (including clarifications)" [shape=doublecircle];
-
-    "About to EnterPlanMode?" -> "Already brainstormed?";
-    "Already brainstormed?" -> "Invoke workflow-brainstorming skill" [label="no"];
-    "Already brainstormed?" -> "Might any skill apply?" [label="yes"];
-    "Invoke workflow-brainstorming skill" -> "Might any skill apply?";
+    "Classify task" [shape=diamond];
+    "Read-only or explanation" [shape=box];
+    "Bug investigation before edits" [shape=box];
+    "Lightweight implementation" [shape=box];
+    "Design or scope unclear?" [shape=diamond];
+    "Use workflow-brainstorming" [shape=box];
+    "Need a real execution plan?" [shape=diamond];
+    "Use workflow-writing-plans" [shape=box];
+    "Parallelizable and worth delegation?" [shape=diamond];
+    "Use subagent / parallel workflow" [shape=box];
+    "Use workflow-executing-plans or direct execution" [shape=box];
 
     "User message received" -> "Might any skill apply?";
-    "Might any skill apply?" -> "Invoke Skill tool" [label="yes, even 1%"];
-    "Might any skill apply?" -> "Respond (including clarifications)" [label="definitely not"];
-    "Invoke Skill tool" -> "Announce: 'Using [skill] to [purpose]'";
-    "Announce: 'Using [skill] to [purpose]'" -> "Has checklist?";
-    "Has checklist?" -> "Create TodoWrite todo per item" [label="yes"];
-    "Has checklist?" -> "Follow skill exactly" [label="no"];
-    "Create TodoWrite todo per item" -> "Follow skill exactly";
+    "Might any skill apply?" -> "Invoke Skill tool" [label="yes"];
+    "Might any skill apply?" -> "Classify task" [label="no"];
+    "Invoke Skill tool" -> "Classify task";
+    "Classify task" -> "Read-only or explanation" [label="read-only"];
+    "Classify task" -> "Bug investigation before edits" [label="debugging"];
+    "Classify task" -> "Lightweight implementation" [label="small local change"];
+    "Classify task" -> "Design or scope unclear?" [label="substantial implementation"];
+    "Design or scope unclear?" -> "Use workflow-brainstorming" [label="yes"];
+    "Design or scope unclear?" -> "Need a real execution plan?" [label="no"];
+    "Use workflow-brainstorming" -> "Need a real execution plan?";
+    "Need a real execution plan?" -> "Use workflow-writing-plans" [label="yes"];
+    "Need a real execution plan?" -> "Parallelizable and worth delegation?" [label="no"];
+    "Use workflow-writing-plans" -> "Parallelizable and worth delegation?";
+    "Parallelizable and worth delegation?" -> "Use subagent / parallel workflow" [label="yes"];
+    "Parallelizable and worth delegation?" -> "Use workflow-executing-plans or direct execution" [label="no"];
 }
 ```
 
+## Routing Rules
+
+### Read-only tasks
+
+Handle directly when the task is analysis, explanation, review without edits, or code reading.
+
+### Bug investigation
+
+Use `workflow-systematic-debugging` before proposing fixes when diagnosing a real failure and implementation has not begun yet.
+
+### Lightweight implementation
+
+Default to direct implementation with a minimal mental or written plan when the task is local and verification is direct. Do not force brainstorming, standalone specs, standalone plan files, worktrees, or subagents onto routine changes.
+
+### Medium or large implementation
+
+Use heavier workflows only when they add real value:
+- `workflow-brainstorming` for unclear requirements, important trade-offs, or larger design work
+- `workflow-writing-plans` when sequencing, coordination, or handoff needs a real plan
+- `workflow-executing-plans` for complex but mostly sequential work
+- `workflow-subagent-driven-development` or `workflow-dispatching-parallel-agents` when tasks are genuinely independent and parallelism is useful
+- `workflow-using-git-worktrees` when isolation materially reduces risk
+
+### Before completion
+
+Always use `workflow-verification-before-completion` before claiming success, completion, or passing status.
+
 ## Red Flags
 
-These thoughts mean STOP—you're rationalizing:
+These thoughts mean STOP and re-triage:
 
-| Thought                             | Reality                                                |
-| ----------------------------------- | ------------------------------------------------------ |
-| "This is just a simple question"    | Questions are tasks. Check for skills.                 |
-| "I need more context first"         | Skill check comes BEFORE clarifying questions.         |
-| "Let me explore the codebase first" | Skills tell you HOW to explore. Check first.           |
-| "I can check git/files quickly"     | Files lack conversation context. Check for skills.     |
-| "Let me gather information first"   | Skills tell you HOW to gather information.             |
-| "This doesn't need a formal skill"  | If a skill exists, use it.                             |
-| "I remember this skill"             | Skills evolve. Read current version.                   |
-| "This doesn't count as a task"      | Action = task. Check for skills.                       |
-| "The skill is overkill"             | Simple things become complex. Use it.                  |
-| "I'll just do this one thing first" | Check BEFORE doing anything.                           |
-| "This feels productive"             | Undisciplined action wastes time. Skills prevent this. |
-| "I know what that means"            | Knowing the concept ≠ using the skill. Invoke it.      |
+| Thought | Reality |
+| --- | --- |
+| "This is just a simple question" | Decide whether it is read-only, debugging, or implementation. |
+| "I need a full workflow for safety" | Use the lightest path that still covers the risk. |
+| "Let me skip the relevant skill" | If a skill fits, use it. |
+| "I remember this skill" | Skills evolve. Read current version. |
+| "Everything should go through brainstorming" | Lightweight changes usually should not. |
+| "Everything should use subagents" | Parallelism only helps when tasks are independent. |
+| "Let's create docs just in case" | Persist docs only when they help execution or handoff. |
 
 ## Skill Priority
 
 When multiple skills could apply, use this order:
 
-1. **Process skills first** (workflow-brainstorming, debugging) - these determine HOW to approach the task
-2. **Implementation skills second** (frontend-design, mcp-builder) - these guide execution
+1. **Routing / process skills first** (debugging, brainstorming, planning) - these choose the path
+2. **Execution skills second** (executing-plans, subagent workflows, implementation-domain skills)
+3. **Verification / review skills last** - these confirm the result before completion
 
-"Let's build X" → workflow-brainstorming first, then implementation skills.
-"Fix this bug" → debugging first, then domain-specific skills.
+Examples:
+- "Explain this module" → direct read-only work
+- "Fix this failing test, not sure why" → workflow-systematic-debugging first
+- "Update copy in one component" → lightweight implementation
+- "Design and build a multi-file feature" → workflow-brainstorming, then workflow-writing-plans if needed
+- "Execute this clear plan in one session" → workflow-executing-plans
+- "Several independent tasks" → subagent or parallel workflow if support is reliable
 
 ## Skill Types
 
@@ -112,4 +144,4 @@ The skill itself tells you which.
 
 ## User Instructions
 
-Instructions say WHAT, not HOW. "Add X" or "Fix Y" doesn't mean skip workflows.
+Instructions say WHAT, not HOW. "Add X" or "Fix Y" doesn't mean skip workflows, but it also does not force the heaviest workflow when a lighter one is sufficient.

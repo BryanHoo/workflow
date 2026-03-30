@@ -1,15 +1,17 @@
 ---
 name: workflow-subagent-driven-development
-description: Use when executing implementation plans with independent tasks in the current session
+description: Use when executing a non-trivial implementation plan in the current session and the work breaks into genuinely independent tasks that benefit from subagent coordination; prefer workflow-executing-plans for tightly coupled or mostly sequential work
 ---
 
 # Subagent-Driven Development
 
-Execute plan by dispatching fresh subagent per task, with two-stage review after each: spec compliance review first, then code quality review.
+Execute a plan by dispatching a fresh subagent per task, with two-stage review after each: spec compliance review first, then code quality review.
 
 **Why subagents:** You delegate tasks to specialized agents with isolated context. By precisely crafting their instructions and context, you ensure they stay focused and succeed at their task. They should never inherit your session's context or history — you construct exactly what they need. This also preserves your own context for coordination work.
 
 **Core principle:** Fresh subagent per task + two-stage review (spec then quality) = high quality, fast iteration
+
+**Default choice rule:** Do not use this skill just because subagents exist. If the work is tightly coupled or can be executed cleanly in sequence, use `workflow-executing-plans` instead.
 
 ## When to Use
 
@@ -27,15 +29,16 @@ digraph when_to_use {
     "Tasks mostly independent?" -> "Stay in this session?" [label="yes"];
     "Tasks mostly independent?" -> "Manual execution or brainstorm first" [label="no - tightly coupled"];
     "Stay in this session?" -> "workflow-subagent-driven-development" [label="yes"];
-    "Stay in this session?" -> "workflow-executing-plans" [label="no - parallel session"];
+    "Stay in this session?" -> "workflow-executing-plans" [label="no - use sequential execution path"];
 }
 ```
 
-**vs. Executing Plans (parallel session):**
+**vs. Executing Plans:**
 - Same session (no context switch)
 - Fresh subagent per task (no context pollution)
 - Two-stage review after each task: spec compliance first, then code quality
 - Faster iteration (no human-in-loop between tasks)
+- Higher coordination overhead, so only use it when independence is real
 
 ## The Process
 
@@ -264,8 +267,8 @@ Done!
 
 ## Integration
 
-**Required workflow skills:**
-- **workflow-using-git-worktrees** - REQUIRED: Set up isolated workspace before starting
+**Related workflow skills:**
+- **workflow-using-git-worktrees** - Use when isolated workspace materially reduces risk
 - **workflow-writing-plans** - Creates the plan this skill executes
 - **workflow-requesting-code-review** - Code review template for reviewer subagents
 - **workflow-finishing-a-development-branch** - Complete development after all tasks
@@ -274,4 +277,4 @@ Done!
 - **workflow-test-driven-development** - Subagents follow TDD for each task
 
 **Alternative workflow:**
-- **workflow-executing-plans** - Use for parallel session instead of same-session execution
+- **workflow-executing-plans** - Use for sequential execution or when subagent overhead is not justified

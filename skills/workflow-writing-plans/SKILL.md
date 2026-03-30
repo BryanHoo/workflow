@@ -1,140 +1,117 @@
 ---
 name: workflow-writing-plans
-description: Use when you have a spec or requirements for a multi-step task, before touching code
+description: "Use when implementation needs a real execution plan before coding: multi-step changes, cross-file coordination, unclear sequencing, or handoff across sessions or agents; skip for lightweight local changes that can be implemented safely with a short inline plan"
 ---
 
 # Writing Plans
 
 ## Overview
 
-Write comprehensive implementation plans assuming the engineer has zero context for our codebase and questionable taste. Document everything they need to know: which files to touch for each task, code, testing, docs they might need to check, how to test it. Give them the whole plan as bite-sized tasks. DRY. YAGNI. TDD. Frequent commits.
-
-Assume they are a skilled developer, but know almost nothing about our toolset or problem domain. Assume they don't know good test design very well.
+Write plans that are just detailed enough to guide correct implementation.
 
 **Announce at start:** "I'm using the workflow-writing-plans skill to create the implementation plan."
 
-**Context:** This should be run in a dedicated worktree (created by workflow-brainstorming skill).
+Do not create a heavyweight plan for a task that can be implemented safely with a short checklist.
 
-**Save plans to:** `docs/workflow/plans/YYYY-MM-DD-<feature-name>.md`
-- (User preferences for plan location override this default)
+## Choose the Right Plan Weight
+
+### Short inline plan
+
+Use an inline plan in the conversation when the task is medium-sized but still local enough to keep in context.
+
+Minimum contents:
+- goal
+- boundary
+- main risks
+- verification approach
+
+### Full plan document
+
+Write a standalone plan file when one or more are true:
+- the work spans multiple subsystems
+- execution will happen across sessions
+- multiple agents or reviewers need a shared artifact
+- the user explicitly wants a saved plan
+- project policy requires durable planning docs
+
+Default save location:
+- `docs/workflow/plans/YYYY-MM-DD-<feature-name>.md`
 
 ## Scope Check
 
-If the spec covers multiple independent subsystems, it should have been broken into sub-project specs during workflow-brainstorming. If it wasn't, suggest breaking this into separate plans — one per subsystem. Each plan should produce working, testable software on its own.
+If the request really contains multiple independent efforts, split it into separate plans. Each plan should target one coherent piece of working software.
 
-## File Structure
+## Plan Content
 
-Before defining tasks, map out which files will be created or modified and what each one is responsible for. This is where decomposition decisions get locked in.
+Before listing tasks, map:
+- which files will change
+- which new files may be created
+- which shared boundaries or APIs are at risk
+- what verification will prove the work is done
 
-- Design units with clear boundaries and well-defined interfaces. Each file should have one clear responsibility.
-- You reason best about code you can hold in context at once, and your edits are more reliable when files are focused. Prefer smaller, focused files over large ones that do too much.
-- Files that change together should live together. Split by responsibility, not by technical layer.
-- In existing codebases, follow established patterns. If the codebase uses large files, don't unilaterally restructure - but if a file you're modifying has grown unwieldy, including a split in the plan is reasonable.
+Prefer plans that preserve local reasoning:
+- group changes by responsibility
+- keep related files together
+- avoid unrelated refactors
+- follow the existing codebase shape unless the current shape is itself part of the problem
 
-This structure informs the task decomposition. Each task should produce self-contained changes that make sense independently.
+## Task Granularity
 
-## Bite-Sized Task Granularity
+Each task should be a meaningful checkpoint, not a pile of micro-steps and not an oversized milestone.
 
-**Each step is one action (2-5 minutes):**
-- "Write the failing test" - step
-- "Run it to make sure it fails" - step
-- "Implement the minimal code to make the test pass" - step
-- "Run the tests and make sure they pass" - step
-- "Commit" - step
+Good task shape:
+- can be implemented and verified with one coherent round of work
+- has clear files in scope
+- has an explicit verification command or checklist
 
-## Plan Document Header
+Avoid:
+- tasks so small that the plan becomes ceremony
+- tasks so large that failure leaves no obvious recovery point
 
-**Every plan MUST start with this header:**
+## Full Plan Template
 
 ```markdown
 # [Feature Name] Implementation Plan
 
-> **For agentic workers:** REQUIRED SUB-SKILL: Use workflow-subagent-driven-development (recommended) or workflow-executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
+**Goal:** [What this change accomplishes]
 
-**Goal:** [One sentence describing what this builds]
+**Boundary:** [What is in scope and what is intentionally out of scope]
 
-**Architecture:** [2-3 sentences about approach]
+**Risks:** [Primary technical or product risks]
 
-**Tech Stack:** [Key technologies/libraries]
+**Verification:** [Commands, scenarios, or checks that prove success]
 
----
-```
-
-## Task Structure
-
-````markdown
-### Task N: [Component Name]
+## Task 1: [Name]
 
 **Files:**
-- Create: `exact/path/to/file.py`
-- Modify: `exact/path/to/existing.py:123-145`
-- Test: `tests/exact/path/to/test.py`
+- Modify: `path/to/file`
+- Create: `path/to/new-file`
+- Verify: `command or scenario`
 
-- [ ] **Step 1: Write the failing test**
+**Implementation notes:**
+- [Key change]
+- [Important constraint]
 
-```python
-def test_specific_behavior():
-    result = function(input)
-    assert result == expected
+## Task 2: [Name]
+...
 ```
 
-- [ ] **Step 2: Run test to verify it fails**
+Use exact file paths and concrete verification. Include snippets only when they materially reduce ambiguity. Do not bloat plans with full code listings unless the code itself is the point of the handoff.
 
-Run: `pytest tests/path/test.py::test_name -v`
-Expected: FAIL with "function not defined"
+## No Placeholder Thinking
 
-- [ ] **Step 3: Write minimal implementation**
-
-```python
-def function(input):
-    return expected
-```
-
-- [ ] **Step 4: Run test to verify it passes**
-
-Run: `pytest tests/path/test.py::test_name -v`
-Expected: PASS
-
-- [ ] **Step 5: Commit**
-
-```bash
-git add tests/path/test.py src/path/file.py
-git commit -m "feat: add specific feature"
-```
-````
-
-## No Placeholders
-
-Every step must contain the actual content an engineer needs. These are **plan failures** — never write them:
-- "TBD", "TODO", "implement later", "fill in details"
-- "Add appropriate error handling" / "add validation" / "handle edge cases"
-- "Write tests for the above" (without actual test code)
-- "Similar to Task N" (repeat the code — the engineer may be reading tasks out of order)
-- Steps that describe what to do without showing how (code blocks required for code steps)
-- References to types, functions, or methods not defined in any task
-
-## Remember
-- Exact file paths always
-- Complete code in every step — if a step changes code, show the code
-- Exact commands with expected output
-- DRY, YAGNI, TDD, frequent commits
+These are plan failures:
+- "TBD" / "TODO" / "implement later"
+- "handle edge cases" without naming the edge cases
+- "write tests" without saying what to verify
+- "same as above" when the later task depends on hidden context
 
 ## Execution Handoff
 
-After saving the plan, offer execution choice:
+After planning, choose execution mode based on the work:
 
-**"Plan complete and saved to `docs/workflow/plans/<filename>.md`. Two execution options:**
+- use `workflow-executing-plans` for complex but mostly sequential work
+- use `workflow-subagent-driven-development` when tasks are genuinely independent and subagent coordination is worth the overhead
+- skip both and implement directly if the plan has collapsed into a lightweight local change
 
-**1. Subagent-Driven (recommended)** - I dispatch a fresh subagent per task, review between tasks, fast iteration
-
-**2. Inline Execution** - Execute tasks in this session using workflow-executing-plans, batch execution with checkpoints
-
-**Which approach?"**
-
-**If Subagent-Driven chosen:**
-- **REQUIRED SUB-SKILL:** Use workflow-subagent-driven-development
-- Fresh subagent per task + two-stage review
-
-**If Inline Execution chosen:**
-- **REQUIRED SUB-SKILL:** Use workflow-executing-plans
-- Batch execution with checkpoints for review
+Do not require a worktree unless isolation meaningfully reduces risk.
