@@ -16,6 +16,9 @@ from common import (
     write_text,
 )
 
+AGENTS_BLOCK_START = "<!-- WORKFLOW-PROJECT-SPEC:START -->"
+AGENTS_BLOCK_END = "<!-- WORKFLOW-PROJECT-SPEC:END -->"
+
 
 def main() -> None:
     parser = argparse.ArgumentParser(description="Initialize docs/workflow/spec")
@@ -51,6 +54,7 @@ def main() -> None:
     shape = guess_project_shape(repo, mode=args.mode, packages_arg=packages, layers_arg=layers)
     created: list[str] = []
     skipped: list[str] = []
+    updated: list[str] = []
 
     root = spec_root(repo)
     root.mkdir(parents=True, exist_ok=True)
@@ -75,12 +79,20 @@ def main() -> None:
                 created += made
                 skipped += kept
 
+    # Keep a lightweight entrypoint in AGENTS.md so future sessions discover the spec tree.
+    agents_result = _write_agents_doc(repo, shape)
+    if agents_result == "created":
+        created.append("AGENTS.md")
+    elif agents_result == "updated":
+        updated.append("AGENTS.md")
+
     summary = {
         "repo": str(repo),
         "mode": shape.mode,
         "packages": shape.packages,
         "layers": shape.layers,
         "created": created,
+        "updated": updated,
         "skipped": skipped,
         "extractedSources": [] if args.no_extract else [name for name, _ in read_extraction_sources(repo)],
     }
@@ -97,6 +109,10 @@ def main() -> None:
     if created:
         print("Created:")
         for item in created:
+            print(f"- {item}")
+    if updated:
+        print("Updated:")
+        for item in updated:
             print(f"- {item}")
     if skipped:
         print("Skipped existing:")
@@ -159,6 +175,79 @@ def _write_layer(
         else:
             skipped.append(str(path.relative_to(repo)))
     return created, skipped
+
+
+def _write_agents_doc(repo: Path, shape) -> str | None:
+    agents_path = repo / "AGENTS.md"
+    block = _agents_block(shape)
+    existing = agents_path.read_text(encoding="utf-8") if agents_path.exists() else ""
+    updated = _upsert_managed_block(existing, block)
+    if updated == existing:
+        return None
+    agents_path.write_text(updated, encoding="utf-8")
+    return "updated" if existing else "created"
+
+
+def _upsert_managed_block(existing: str, block: str) -> str:
+    # Replace only the managed block and leave any user-authored instructions untouched.
+    if AGENTS_BLOCK_START in existing and AGENTS_BLOCK_END in existing:
+        start = existing.index(AGENTS_BLOCK_START)
+        end = existing.index(AGENTS_BLOCK_END) + len(AGENTS_BLOCK_END)
+        before = existing[:start].rstrip()
+        after = existing[end:].lstrip()
+        parts = [part for part in [before, block, after] if part]
+        return "\n\n".join(parts) + "\n"
+
+    cleaned = existing.strip()
+    if cleaned:
+        return f"{cleaned}\n\n{block}\n"
+    return f"{block}\n"
+
+
+def _agents_block(shape) -> str:
+    shared_docs = [
+        "docs/workflow/spec/project/overview.md",
+        "docs/workflow/spec/project/commands.md",
+        "docs/workflow/spec/guides/index.md",
+        "docs/workflow/spec/project/glossary.md",
+    ]
+    layer_indexes = _layer_index_paths(shape)
+    shared_rows = "\n".join(f"- `{path}`" for path in shared_docs)
+    layer_rows = "\n".join(f"- `{path}`" for path in layer_indexes)
+    return f"""{AGENTS_BLOCK_START}
+# Workflow Project Spec
+
+This repository keeps durable implementation context in `docs/workflow/spec/`.
+
+When a task needs project-specific context:
+1. Read `docs/workflow/spec/project/overview.md`.
+2. Read `docs/workflow/spec/project/commands.md`.
+3. Read `docs/workflow/spec/guides/index.md`.
+4. Read the relevant layer index listed below.
+5. Read only the detailed spec files linked from those indexes.
+6. Read `docs/workflow/spec/project/glossary.md` when domain language is ambiguous.
+
+## Shared Spec Entry Points
+
+{shared_rows}
+
+## Available Layer Indexes
+
+{layer_rows}
+
+Keep this managed block so `workflow-project-spec` can refresh the spec entry points after re-initialization.
+{AGENTS_BLOCK_END}"""
+
+
+def _layer_index_paths(shape) -> list[str]:
+    if shape.mode == "single":
+        return [f"docs/workflow/spec/{layer}/index.md" for layer in shape.layers]
+
+    paths: list[str] = []
+    for package in shape.packages:
+        for layer in shape.layers:
+            paths.append(f"docs/workflow/spec/{package}/{layer}/index.md")
+    return paths
 
 
 def _layer_docs(layer: str) -> dict[str, str]:

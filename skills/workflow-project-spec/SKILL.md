@@ -45,6 +45,7 @@ python3 scripts/init_spec.py --repo "$PWD" --force
 What it does:
 - creates a single-repo or monorepo `docs/workflow/spec/` skeleton
 - creates `project/`, `guides/`, and relevant layer folders
+- adds or refreshes a managed `AGENTS.md` block that points future sessions at the generated spec entry points
 - attempts to extract initial context from `AGENTS.md`, `CLAUDE.md`, `CLAUDE.local.md`, `CONTRIBUTING.md`, `.github/copilot-instructions.md`, and `.cursor/rules/`
 - never overwrites existing spec content unless `--force` is passed
 
