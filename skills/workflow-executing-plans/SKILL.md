@@ -38,9 +38,10 @@ If `docs/workflow/spec/` exists, invoke `workflow-project-spec` in load mode bef
 For each task or checkpoint:
 1. mark it in progress
 2. implement the scoped change
-3. run the stated verification
-4. update the plan or notes if reality changed
-5. mark it complete only after evidence is in hand
+3. if the checkpoint is already green and the remaining work is readability-only cleanup, use `workflow-code-simplifier` before final verification for that checkpoint
+4. run the stated verification
+5. update the plan or notes if reality changed
+6. mark it complete only after evidence is in hand
 
 Prefer targeted verification during execution and broader verification before completion.
 
@@ -85,6 +86,7 @@ Ask for clarification rather than guessing.
 
 Related workflow skills:
 - `workflow-writing-plans` - creates or refines the plan this skill executes
+- `workflow-code-simplifier` - use for scoped readability or maintainability cleanup after behavior is already correct
 - `workflow-systematic-debugging` - use when execution becomes real diagnosis work
 - `workflow-project-check` - derives the final project-aware verification scope from the changed files
 - `workflow-verification-before-completion` - required before claiming success

@@ -48,9 +48,10 @@ Treat the task as direct local implementation when most of these are true:
 Default path:
 1. Capture a minimal plan in working memory or brief notes: goal, boundary, risks, verification
 2. If the task changes behavior and a failing automated check can be written first, prefer `workflow-test-driven-development`
-3. Implement directly
-4. Run targeted verification
-5. Use review only if the change is risky, user-requested, or likely to benefit from another pass
+3. If the task is explicitly readability-only cleanup or code simplification, use `workflow-code-simplifier`
+4. Implement directly
+5. Run targeted verification
+6. Use review only if the change is risky, user-requested, or likely to benefit from another pass
 
 Question-asking rule:
 - Ask at most one blocking question first
@@ -89,7 +90,7 @@ If `workflow-project-check` would later produce `checkMode=local+cross-layer`, t
 ## Behavior vs Cleanup
 
 - Behavior change: prefer TDD or debugging-first flow when a failing check or reproduction is practical
-- Non-behavioral cleanup after green: keep the path light if the boundary remains local and verification is still direct
+- Non-behavioral cleanup after green: keep the path light if the boundary remains local and verification is still direct, and use `workflow-code-simplifier` for the cleanup pass
 
 ## Escalate or De-escalate
 

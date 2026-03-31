@@ -88,11 +88,13 @@ Use `references/task-routing.md` as the routing source of truth. Reuse its task 
 ### Project spec context
 
 If the target repo contains `docs/workflow/spec/`, use `workflow-project-spec` before substantial planning or implementation:
+
 - initialize it when the user wants project-spec support but the directory does not exist yet
 - load relevant spec files before writing plans or code
 - update relevant spec files after reusable conventions or contracts are discovered
 
 If code has already changed in a repo with `docs/workflow/spec/`, use `workflow-project-check` before completion claims, branch handoff, or review requests:
+
 - classify the change scope
 - identify the relevant spec files and verification commands
 - decide whether cross-layer checks or spec updates are required
@@ -108,6 +110,8 @@ Use `workflow-systematic-debugging` before proposing fixes when diagnosing a rea
 ### Direct local implementation
 
 Default to direct implementation with a minimal mental or written plan when the task is local and verification is direct. If the task changes behavior and a failing automated check is practical, prefer `workflow-test-driven-development` rather than making ad hoc edits first. Do not force brainstorming, standalone specs, standalone plan files, worktrees, or subagents onto routine changes.
+
+If the task is explicitly non-behavioral cleanup, readability refactoring, or recently touched code simplification, invoke `workflow-code-simplifier` as the implementation skill instead of improvising cleanup rules.
 
 ### Planned implementation
 
@@ -165,6 +169,7 @@ Examples:
 - "Explain this module" → direct read-only work
 - "Fix this failing test, not sure why" → workflow-systematic-debugging first
 - "Update copy in one component" → lightweight implementation
+- "Simplify this recently changed module without changing behavior" → workflow-code-simplifier
 - "Design and build a multi-file feature" → workflow-brainstorming, then workflow-writing-plans if needed
 - "Execute this clear plan in one session" → workflow-executing-plans
 - "Several independent tasks" → subagent or parallel workflow only if support is reliable; otherwise execute sequentially in the current session

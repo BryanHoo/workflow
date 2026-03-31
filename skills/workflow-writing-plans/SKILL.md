@@ -63,6 +63,7 @@ Prefer plans that preserve local reasoning:
 - keep related files together
 - avoid unrelated refactors
 - follow the existing codebase shape unless the current shape is itself part of the problem
+- when a task includes readability-only cleanup after behavior is already green, label that checkpoint as `workflow-code-simplifier` work instead of mixing it into behavior-changing steps
 
 ## Task Granularity
 
