@@ -1,6 +1,6 @@
 ---
 name: workflow-review-doc
-description: Review working documents such as specs, implementation plans, requirements, proposals, RFCs, ADRs, and handoff docs before planning, implementation, approval, or delegation. Use when Codex needs a reusable document-review workflow, a reviewer subagent prompt, or a consistent rubric for completeness, consistency, clarity, scope, alignment, and buildability.
+description: Review working documents such as specs, implementation plans, requirements, proposals, RFCs, ADRs, and handoff docs before planning, implementation, approval, or delegation. Use when Codex needs a reusable document-review workflow, a reviewer subagent prompt, or a consistent rubric for completeness, consistency, clarity, scope, alignment, and buildability, including inline fallback review in environments without delegation.
 ---
 
 # Workflow Review Doc
@@ -34,6 +34,7 @@ Review documents with a document-first workflow. Start from the actual artifact,
 - Tell the reviewer to approve unless serious gaps exist.
 - Ask for file and section references whenever the document format makes that practical.
 - If the document is short and the review is straightforward, review it inline instead of dispatching a subagent.
+- If the environment does not support subagents, always review inline in the current session and preserve the same blocking-vs-advisory bar.
 
 ## Core Review Axes
 

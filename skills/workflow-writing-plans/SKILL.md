@@ -122,7 +122,8 @@ These are plan failures:
 After planning, choose execution mode based on the work:
 
 - use `workflow-executing-plans` for complex but mostly sequential work
-- use `workflow-subagent-driven-development` when tasks are genuinely independent and subagent coordination is worth the overhead
+- use `workflow-subagent-driven-development` when tasks are genuinely independent, subagent coordination is worth the overhead, and the environment supports reliable delegation
+- fall back to `workflow-executing-plans` when the tasks are independent in theory but the environment does not support subagents or parallel execution
 - skip both and implement directly if the plan has collapsed into a lightweight local change
 
 Do not require a worktree unless isolation meaningfully reduces risk.

@@ -1,11 +1,13 @@
 ---
 name: workflow-subagent-driven-development
-description: Use when executing a non-trivial implementation plan in the current session and the work breaks into genuinely independent tasks that benefit from subagent coordination; prefer workflow-executing-plans for tightly coupled or mostly sequential work
+description: Use when executing a non-trivial implementation plan in the current session and the work breaks into genuinely independent tasks that benefit from subagent coordination in an environment that supports reliable delegation; prefer workflow-executing-plans for tightly coupled work or unsupported environments
 ---
 
 # Subagent-Driven Development
 
 Execute a plan by dispatching a fresh subagent per task, with two-stage review after each: spec compliance review first, then code quality review.
+
+If the current environment does not support subagents reliably, do **not** force delegation. Keep the same task boundaries and review gates, but execute them sequentially in the current session via `workflow-executing-plans`.
 
 **Why subagents:** You delegate tasks to specialized agents with isolated context. By precisely crafting their instructions and context, you ensure they stay focused and succeed at their task. They should never inherit your session's context or history — you construct exactly what they need. This also preserves your own context for coordination work.
 
@@ -20,6 +22,7 @@ digraph when_to_use {
     "Have implementation plan?" [shape=diamond];
     "Tasks mostly independent?" [shape=diamond];
     "Stay in this session?" [shape=diamond];
+    "Subagents supported reliably?" [shape=diamond];
     "workflow-subagent-driven-development" [shape=box];
     "workflow-executing-plans" [shape=box];
     "Manual execution or brainstorm first" [shape=box];
@@ -28,8 +31,10 @@ digraph when_to_use {
     "Have implementation plan?" -> "Manual execution or brainstorm first" [label="no"];
     "Tasks mostly independent?" -> "Stay in this session?" [label="yes"];
     "Tasks mostly independent?" -> "Manual execution or brainstorm first" [label="no - tightly coupled"];
-    "Stay in this session?" -> "workflow-subagent-driven-development" [label="yes"];
+    "Stay in this session?" -> "Subagents supported reliably?" [label="yes"];
     "Stay in this session?" -> "workflow-executing-plans" [label="no - use sequential execution path"];
+    "Subagents supported reliably?" -> "workflow-subagent-driven-development" [label="yes"];
+    "Subagents supported reliably?" -> "workflow-executing-plans" [label="no - stay in current session"];
 }
 ```
 
@@ -39,6 +44,21 @@ digraph when_to_use {
 - Two-stage review after each task: spec compliance first, then code quality
 - Faster iteration (no human-in-loop between tasks)
 - Higher coordination overhead, so only use it when independence is real
+
+## Sequential Fallback
+
+If subagents are unavailable, restricted by policy, or unreliable in practice:
+
+1. Use `workflow-executing-plans` as the base execution path.
+2. Keep the original task decomposition instead of collapsing everything into one blob of work.
+3. For each task, perform the same gate order manually in the current session:
+   - implement the scoped change
+   - run spec-compliance review against the task requirements
+   - run code-quality review on the resulting diff
+   - fix issues before moving to the next task
+4. Run the final aggregate verification and branch-finishing steps after all tasks complete.
+
+The downgrade preserves review discipline and task isolation conceptually, even when actual delegation is unavailable.
 
 ## The Process
 
@@ -237,6 +257,8 @@ Done!
 - Review loops add iterations
 - But catches issues early (cheaper than debugging later)
 
+When subagents are unavailable, you lose the concurrency and isolated-context benefits, but the same review order should still be preserved sequentially.
+
 ## Red Flags
 
 **Never:**
@@ -244,6 +266,7 @@ Done!
 - Skip reviews (spec compliance OR code quality)
 - Proceed with unfixed issues
 - Dispatch multiple implementation subagents in parallel (conflicts)
+- Insist on subagent dispatch when the environment does not support it
 - Make subagent read plan file (provide full text instead)
 - Skip scene-setting context (subagent needs to understand where task fits)
 - Ignore subagent questions (answer before letting them proceed)
@@ -281,4 +304,4 @@ Done!
 - **workflow-test-driven-development** - Subagents follow TDD for each task
 
 **Alternative workflow:**
-- **workflow-executing-plans** - Use for sequential execution or when subagent overhead is not justified
+- **workflow-executing-plans** - Use for sequential execution, when subagent overhead is not justified, or when subagents are unavailable

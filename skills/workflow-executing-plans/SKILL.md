@@ -13,6 +13,8 @@ Load the plan, review it critically, execute the work, and verify each checkpoin
 
 This is the default execution path for non-trivial work that does **not** clearly benefit from subagent-driven parallelism.
 
+It is also the fallback path when the plan would conceptually benefit from delegation, but the current environment does not support subagents or reliable parallel execution.
+
 ## Step 1: Load and Right-Size the Plan
 
 1. Read the plan or the explicit task list
@@ -48,7 +50,7 @@ If `docs/workflow/spec/` exists and code changed, use `workflow-project-check` b
 ## Step 3: Escalate Only When Needed
 
 Switch away from this skill only if the task materially changes:
-- use `workflow-subagent-driven-development` when the work breaks into genuinely independent chunks and parallel coordination is worth it
+- use `workflow-subagent-driven-development` when the work breaks into genuinely independent chunks, parallel coordination is worth it, and the environment supports it
 - use `workflow-writing-plans` again if the plan no longer reflects reality
 - use `workflow-systematic-debugging` if execution turns into root-cause investigation
 

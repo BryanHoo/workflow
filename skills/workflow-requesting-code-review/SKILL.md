@@ -7,6 +7,8 @@ description: Use when a change is major, risky, merge-bound, or otherwise likely
 
 Dispatch workflow-code-reviewer subagent to catch issues before they cascade. The reviewer gets precisely crafted context for evaluation — never your session's history. This keeps the reviewer focused on the work product, not your thought process, and preserves your own context for continued work.
 
+If the environment does not support reviewer subagents, run the same review inline in the current session using the same diff, requirements, and severity bar.
+
 **Core principle:** Review early, review often.
 
 ## When to Request Review
@@ -36,7 +38,7 @@ BASE_SHA=$(git rev-parse HEAD~1)  # or origin/main
 HEAD_SHA=$(git rev-parse HEAD)
 ```
 
-**2. Dispatch code-reviewer subagent:**
+**2. Dispatch code-reviewer subagent when supported:**
 
 Use Task tool with workflow-code-reviewer type, fill template at `code-reviewer.md`
 
@@ -46,6 +48,8 @@ Use Task tool with workflow-code-reviewer type, fill template at `code-reviewer.
 - `{BASE_SHA}` - Starting commit
 - `{HEAD_SHA}` - Ending commit
 - `{DESCRIPTION}` - Brief summary
+
+**Fallback:** If no reliable subagent mechanism exists, use the same filled template as an inline review checklist in the current session. Review the diff directly, produce findings with the same severity discipline, and only continue after acting on the important feedback.
 
 **3. Act on feedback:**
 - Fix Critical issues immediately
@@ -97,11 +101,13 @@ You: [Fix progress indicators]
 - Review after EACH task
 - Catch issues before they compound
 - Fix before moving to next task
+- If subagents are unavailable, keep the same per-task review cadence inline in the current session
 
 **Executing Plans:**
 - Review after each batch (3 tasks)
 - Get feedback, apply, continue
 - If `docs/workflow/spec/` exists, run `workflow-project-check` before requesting the review
+- If delegation is unavailable, perform the review inline before starting the next batch
 
 **Ad-Hoc Development:**
 - Review before merge

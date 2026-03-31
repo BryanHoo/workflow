@@ -1,6 +1,6 @@
 ---
 name: workflow-dispatching-parallel-agents
-description: Use when facing 2+ independent tasks that can be worked on without shared state or sequential dependencies; first verify that parallelism is actually beneficial, otherwise stay sequential
+description: Use when facing 2+ independent tasks that can be worked on without shared state or sequential dependencies and the environment supports reliable parallel execution; first verify that parallelism is actually beneficial, otherwise stay sequential
 ---
 
 # Dispatching Parallel Agents
@@ -11,6 +11,8 @@ You delegate tasks to specialized agents with isolated context. By precisely cra
 
 When you have multiple unrelated failures (different test files, different subsystems, different bugs), investigating them sequentially wastes time. First verify that the tasks are genuinely independent. If they are, investigate them in parallel.
 
+If the environment cannot run agents in parallel reliably, keep the same breakdown but investigate one domain at a time in the current session.
+
 **Core principle:** Dispatch one agent per independent problem domain. Let them work concurrently.
 
 ## When to Use
@@ -20,16 +22,15 @@ digraph when_to_use {
     "Multiple failures?" [shape=diamond];
     "Are they independent?" [shape=diamond];
     "Single agent investigates all" [shape=box];
-    "One agent per problem domain" [shape=box];
-    "Can they work in parallel?" [shape=diamond];
-    "Sequential agents" [shape=box];
+    "Environment supports reliable parallelism?" [shape=diamond];
+    "Sequential investigation in current session" [shape=box];
     "Parallel dispatch" [shape=box];
 
     "Multiple failures?" -> "Are they independent?" [label="yes"];
     "Are they independent?" -> "Single agent investigates all" [label="no - related"];
-    "Are they independent?" -> "Can they work in parallel?" [label="yes"];
-    "Can they work in parallel?" -> "Parallel dispatch" [label="yes"];
-    "Can they work in parallel?" -> "Sequential agents" [label="no - shared state"];
+    "Are they independent?" -> "Environment supports reliable parallelism?" [label="yes"];
+    "Environment supports reliable parallelism?" -> "Parallel dispatch" [label="yes"];
+    "Environment supports reliable parallelism?" -> "Sequential investigation in current session" [label="no"];
 }
 ```
 
@@ -72,6 +73,17 @@ Task("Fix batch-completion-behavior.test.ts failures")
 Task("Fix tool-approval-race-conditions.test.ts failures")
 // All three run concurrently
 ```
+
+### 3a. Sequential Fallback in the Current Session
+
+If parallel agents are unavailable:
+
+1. Keep the same independent domains.
+2. Work one domain at a time in priority order.
+3. After each domain, record the root cause, the fix, and the verification evidence.
+4. Only then move to the next domain.
+
+This preserves the workflow's separation of concerns even without concurrency.
 
 ### 4. Review and Integrate
 
@@ -160,10 +172,10 @@ Agent 3 → Fix tool-approval-race-conditions.test.ts
 
 ## Key Benefits
 
-1. **Parallelization** - Multiple investigations happen simultaneously
+1. **Parallelization** - Multiple investigations happen simultaneously when the environment supports it
 2. **Focus** - Each agent has narrow scope, less context to track
 3. **Independence** - Agents don't interfere with each other
-4. **Speed** - 3 problems solved in time of 1
+4. **Speed** - 3 problems solved in time of 1 when true parallel execution is available
 
 ## Verification
 
@@ -173,6 +185,8 @@ After agents return:
 3. **Use workflow-project-check** when `docs/workflow/spec/` applies - derive the project-aware verification scope from the aggregate diff
 4. **Run full suite** - Verify all fixes work together
 5. **Spot check** - Agents can make systematic errors
+
+If you ran the fallback path, review each domain summary before starting the next one so mistakes do not cascade.
 
 ## Real-World Impact
 

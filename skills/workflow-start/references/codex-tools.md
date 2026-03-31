@@ -4,8 +4,8 @@ Skills use Claude Code tool names. When you encounter these in a skill, use your
 
 | Skill references | Codex equivalent |
 |-----------------|------------------|
-| `Task` tool (dispatch subagent) | `spawn_agent` (see [Named agent dispatch](#named-agent-dispatch)) |
-| Multiple `Task` calls (parallel) | Multiple `spawn_agent` calls |
+| `Task` tool (dispatch subagent) | `spawn_agent` when available; otherwise keep the work in the current session and execute sequentially |
+| Multiple `Task` calls (parallel) | Multiple `spawn_agent` calls when available; otherwise queue the tasks sequentially in the current session |
 | Task returns result | `wait` |
 | Task completes automatically | `close_agent` to free slot |
 | `TodoWrite` (task tracking) | `update_plan` |
@@ -23,6 +23,19 @@ multi_agent = true
 ```
 
 This enables `spawn_agent`, `wait`, and `close_agent` for skills like `workflow-dispatching-parallel-agents` and `workflow-subagent-driven-development`.
+
+If `multi_agent` is disabled, unavailable, or unreliable in the current environment, do **not** try to emulate it with brittle workarounds. Stay in the current session, keep the same task boundaries, and run the tasks one at a time.
+
+## Sequential fallback
+
+When a skill assumes subagents or parallelism but the environment does not support them reliably:
+
+1. Keep the current agent as the controller and implementer.
+2. Preserve the same scoped task breakdown the skill would have delegated.
+3. Run each task or review step sequentially.
+4. Complete each verification or review checkpoint before moving to the next task.
+
+The fallback goal is to preserve the workflow's discipline, not its exact tooling.
 
 ## Named agent dispatch
 

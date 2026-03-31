@@ -33,6 +33,8 @@ If CLAUDE.md, GEMINI.md, or AGENTS.md says "don't use TDD" and a skill says "alw
 
 Skills use Claude Code tool names. Non-CC platforms: see `references/codex-tools.md` (Codex) for tool equivalents. Gemini CLI users get the tool mapping loaded automatically via GEMINI.md.
 
+If the current environment does not support subagents or reliable parallel execution, route to the equivalent sequential workflow in the current session instead of forcing delegation.
+
 # Using Skills
 
 Read `references/task-routing.md` before choosing a heavy workflow. It defines the default lightweight path, escalation rules, and when parallelism is actually worth it.
@@ -56,7 +58,7 @@ digraph skill_flow {
     "Need a real execution plan?" [shape=diamond];
     "Use workflow-writing-plans" [shape=box];
     "Parallelizable and worth delegation?" [shape=diamond];
-    "Use subagent / parallel workflow" [shape=box];
+    "Use subagent / parallel workflow (if supported)" [shape=box];
     "Use workflow-executing-plans or direct execution" [shape=box];
 
     "User message received" -> "Might any skill apply?";
@@ -74,7 +76,7 @@ digraph skill_flow {
     "Need a real execution plan?" -> "Use workflow-writing-plans" [label="yes"];
     "Need a real execution plan?" -> "Parallelizable and worth delegation?" [label="no"];
     "Use workflow-writing-plans" -> "Parallelizable and worth delegation?";
-    "Parallelizable and worth delegation?" -> "Use subagent / parallel workflow" [label="yes"];
+    "Parallelizable and worth delegation?" -> "Use subagent / parallel workflow (if supported)" [label="yes"];
     "Parallelizable and worth delegation?" -> "Use workflow-executing-plans or direct execution" [label="no"];
 }
 ```
@@ -115,7 +117,8 @@ Use heavier workflows only when they add real value:
 - `workflow-writing-plans` when sequencing, coordination, or handoff needs a real plan
 - `workflow-executing-plans` for complex but mostly sequential work
 - `workflow-project-spec` whenever repo-specific implementation context should be initialized, loaded, or refreshed from `docs/workflow/spec/`
-- `workflow-subagent-driven-development` or `workflow-dispatching-parallel-agents` when tasks are genuinely independent and parallelism is useful
+- `workflow-subagent-driven-development` or `workflow-dispatching-parallel-agents` when tasks are genuinely independent, parallelism is useful, and the environment supports reliable delegation
+- fall back to `workflow-executing-plans` when the task is independent in theory but the environment does not support subagents or parallel execution
 - `workflow-using-git-worktrees` when isolation materially reduces risk
 
 Treat contract, schema, config, and cross-layer signals as strong reasons to enter this path even if the raw file count still looks small.
@@ -164,7 +167,7 @@ Examples:
 - "Update copy in one component" → lightweight implementation
 - "Design and build a multi-file feature" → workflow-brainstorming, then workflow-writing-plans if needed
 - "Execute this clear plan in one session" → workflow-executing-plans
-- "Several independent tasks" → subagent or parallel workflow if support is reliable
+- "Several independent tasks" → subagent or parallel workflow only if support is reliable; otherwise execute sequentially in the current session
 - "Work is implemented and needs project-aware verification" → workflow-project-check, then workflow-verification-before-completion
 
 ## Skill Types
