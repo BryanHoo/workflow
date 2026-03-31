@@ -85,6 +85,16 @@ digraph skill_flow {
 
 Use `references/task-routing.md` as the routing source of truth. Reuse its task classes and shared routing signals rather than inventing a fresh taxonomy in the moment.
 
+## User-visible routing
+
+After you choose the route, tell the user which route you are taking and why before substantial work begins.
+
+- Name the route explicitly, such as read-only analysis, debugging or failure investigation, direct local implementation, or planned implementation.
+- Give the concrete reason using the task signals that triggered the route, not generic filler.
+- Phrase the announcement using the active language policy for the current session.
+- Keep the announcement brief, but do not keep the routing decision implicit.
+- If the route changes later because the scope expands or risk drops, tell the user that the route changed and why.
+
 ### Project spec context
 
 If the target repo contains `docs/workflow/spec/`, use `workflow-project-spec` before substantial planning or implementation:

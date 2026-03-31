@@ -9,6 +9,8 @@ Use the lightest path that still preserves quality.
 - Do not upgrade a task into a heavier workflow unless the current path stops being sufficient.
 - Keep documentation in service of execution. Only persist specs or plans when the user asks, project policy requires it, or the artifact has clear reuse or handoff value.
 - Use one classification vocabulary from entry to completion. When task paths, diff, or repo shape are available, reuse the same signals later surfaced by `workflow-project-check`.
+- Once the route is chosen, state the selected route and the concrete reason to the user before substantial work begins.
+- If the route escalates or de-escalates later, state the new route and the reason for the change.
 
 ## Task Classes
 
@@ -72,6 +74,24 @@ Default path:
 - use `workflow-writing-plans` when a real execution plan is needed
 - prefer `workflow-executing-plans` for complex work that is still mostly sequential
 - use `workflow-subagent-driven-development` or `workflow-dispatching-parallel-agents` only when tasks are genuinely independent and the platform supports that mode reliably
+
+## User-visible route announcement
+
+When the route is determined:
+1. Name the route explicitly.
+2. State the concrete signals that selected it.
+3. Use the active session language policy when phrasing the explanation.
+4. Keep the explanation brief and actionable.
+
+Good examples:
+- "当前走 direct local implementation，因为改动边界局部、验证路径直接，而且没有明显 cross-layer 信号。"
+- "当前走 planned implementation，因为这个改动涉及 shared contract 和 config change，轻量路径不够稳妥。"
+
+Bad examples:
+- "我先按合适的流程处理。"
+- "我会开始处理这个任务。"
+
+The point is visibility: routing should be understandable to the user, not just correct internally.
 
 ## Shared Routing Signals
 
