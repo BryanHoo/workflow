@@ -188,7 +188,7 @@ After green only:
 - Remove duplication
 - Improve names
 - Extract helpers
-- Use `workflow-code-simplifier` when the refactor is purely readability or maintainability cleanup without behavior change
+- Use `workflow-code-simplifier` for larger or end-of-task readability cleanup passes; do not treat it as a mandatory separate step after every tiny green cycle
 
 Keep tests green. Don't add behavior.
 
