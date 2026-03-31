@@ -31,7 +31,7 @@ Review for:
 
 Raise substantive gaps before implementation. Do not blindly execute a bad plan.
 
-If `docs/workflow/spec/` exists, invoke `workflow-project-spec` in load mode before implementation starts. Use its bundled `scripts/detect_spec_scope.py` to resolve the relevant spec files, then read those files before editing code.
+If `docs/workflow/spec/` exists, invoke `workflow-project-spec` in load mode before implementation starts. Resolve the `workflow-project-spec` skill directory first, then run its bundled `scripts/detect_spec_scope.py` from that skill directory rather than searching the target repo for the script. Read the returned spec files before editing code.
 
 ## Step 2: Execute Sequentially
 

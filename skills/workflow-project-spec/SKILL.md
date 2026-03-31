@@ -19,6 +19,13 @@ Use `docs/workflow/spec/` as the durable home for:
 - Read index files first, then load only the detailed files relevant to the current task.
 - Update specs when a task establishes a reusable rule, contract, or non-obvious lesson. Do not churn specs for trivial edits.
 - Keep specs concrete. Prefer commands, paths, signatures, examples, anti-patterns, and verification notes over abstract principles.
+- Resolve bundled scripts from this skill's own directory. Do not search the target repo for `init_spec.py`, `detect_spec_scope.py`, or `update_spec.py`.
+
+Before running any bundled script, set:
+
+```bash
+SKILL_DIR=/absolute/path/to/workflow-project-spec
+```
 
 ## Modes
 
@@ -29,17 +36,17 @@ Use when a repo does not yet have `docs/workflow/spec/`, or when it needs a firs
 Run:
 
 ```bash
-python3 scripts/init_spec.py --repo "$PWD"
+python3 "$SKILL_DIR/scripts/init_spec.py" --repo "$PWD"
 ```
 
 Useful options:
 
 ```bash
-python3 scripts/init_spec.py --repo "$PWD" --mode monorepo
-python3 scripts/init_spec.py --repo "$PWD" --packages api,web,docs
-python3 scripts/init_spec.py --repo "$PWD" --layers backend,frontend
-python3 scripts/init_spec.py --repo "$PWD" --no-extract
-python3 scripts/init_spec.py --repo "$PWD" --force
+python3 "$SKILL_DIR/scripts/init_spec.py" --repo "$PWD" --mode monorepo
+python3 "$SKILL_DIR/scripts/init_spec.py" --repo "$PWD" --packages api,web,docs
+python3 "$SKILL_DIR/scripts/init_spec.py" --repo "$PWD" --layers backend,frontend
+python3 "$SKILL_DIR/scripts/init_spec.py" --repo "$PWD" --no-extract
+python3 "$SKILL_DIR/scripts/init_spec.py" --repo "$PWD" --force
 ```
 
 What it does:
@@ -64,13 +71,13 @@ Use before brainstorming, planning, or coding so the task starts with repo-speci
 Run:
 
 ```bash
-python3 scripts/detect_spec_scope.py --repo "$PWD" --task "<task summary>"
+python3 "$SKILL_DIR/scripts/detect_spec_scope.py" --repo "$PWD" --task "<task summary>"
 ```
 
 Or use path hints:
 
 ```bash
-python3 scripts/detect_spec_scope.py --repo "$PWD" --paths src/api/users.ts tests/users.test.ts
+python3 "$SKILL_DIR/scripts/detect_spec_scope.py" --repo "$PWD" --paths src/api/users.ts tests/users.test.ts
 ```
 
 The script returns:
@@ -96,7 +103,7 @@ Use after implementation, debugging, or review when the work produced a reusable
 Run:
 
 ```bash
-python3 scripts/update_spec.py \
+python3 "$SKILL_DIR/scripts/update_spec.py" \
   --repo "$PWD" \
   --target docs/workflow/spec/backend/error-handling.md \
   --title "Common mistake: API handlers swallow validation errors" \
@@ -108,7 +115,7 @@ python3 scripts/update_spec.py \
 You can also update package-scoped specs:
 
 ```bash
-python3 scripts/update_spec.py \
+python3 "$SKILL_DIR/scripts/update_spec.py" \
   --repo "$PWD" \
   --target docs/workflow/spec/web/frontend/state-management.md \
   --title "Convention: async form state lives in route-level actions" \

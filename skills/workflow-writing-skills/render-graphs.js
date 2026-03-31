@@ -4,8 +4,8 @@
  * Render graphviz diagrams from a skill's SKILL.md to SVG files.
  *
  * Usage:
- *   ./render-graphs.js <skill-directory>           # Render each diagram separately
- *   ./render-graphs.js <skill-directory> --combine # Combine all into one diagram
+ *   node /absolute/path/to/render-graphs.js <skill-directory>           # Render each diagram separately
+ *   node /absolute/path/to/render-graphs.js <skill-directory> --combine # Combine all into one diagram
  *
  * Extracts all ```dot blocks from SKILL.md and renders to SVG.
  * Useful for helping your human partner visualize the process flows.
@@ -93,8 +93,8 @@ function main() {
     console.error('  --combine    Combine all diagrams into one SVG');
     console.error('');
     console.error('Example:');
-    console.error('  ./render-graphs.js ../workflow-subagent-driven-development');
-    console.error('  ./render-graphs.js ../workflow-subagent-driven-development --combine');
+    console.error('  node /absolute/path/to/render-graphs.js ../workflow-subagent-driven-development');
+    console.error('  node /absolute/path/to/render-graphs.js ../workflow-subagent-driven-development --combine');
     process.exit(1);
   }
 

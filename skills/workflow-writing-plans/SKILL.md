@@ -53,7 +53,7 @@ Before listing tasks, map:
 - what verification will prove the work is done
 
 When `docs/workflow/spec/` exists:
-- invoke `workflow-project-spec` in load mode and run its bundled `scripts/detect_spec_scope.py`
+- invoke `workflow-project-spec` in load mode and run its bundled `scripts/detect_spec_scope.py` from the `workflow-project-spec` skill directory, not from the target repo
 - read the returned index and detailed files before fixing scope, risks, and verification
 - treat those files as project-specific constraints for the plan
 - leave room in the verification section for `workflow-project-check` to refine the final command set from the real changed files

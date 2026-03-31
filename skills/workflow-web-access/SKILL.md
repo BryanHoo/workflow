@@ -116,8 +116,11 @@ description: Use when a task needs current public web information, page reading,
 当你决定进入 CDP，先运行：
 
 ```bash
-bash skills/workflow-web-access/scripts/check-deps.sh
+SKILL_DIR=/absolute/path/to/workflow-web-access
+bash "$SKILL_DIR/scripts/check-deps.sh"
 ```
+
+这些脚本属于当前 skill 自身。不要去目标仓库里查找 `skills/workflow-web-access/scripts/...`，也不要假设当前工作目录就是 skill 目录。
 
 这个脚本会检查：
 
@@ -194,7 +197,8 @@ curl -s "http://127.0.0.1:3456/close?target=TARGET_ID"
 确定目标站点后，检查是否已有经验文件：
 
 ```bash
-bash skills/workflow-web-access/scripts/match-site.sh "xiaohongshu"
+SKILL_DIR=/absolute/path/to/workflow-web-access
+bash "$SKILL_DIR/scripts/match-site.sh" "xiaohongshu"
 ```
 
 站点经验位于 `references/site-patterns/`，按域名保存。只记录经过验证的事实：

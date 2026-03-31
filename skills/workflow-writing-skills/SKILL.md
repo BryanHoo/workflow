@@ -90,6 +90,34 @@ skills/
 - Code patterns (< 50 lines)
 - Everything else
 
+### Skill-Local Asset Resolution
+
+If a skill ships with `scripts/`, helper files, templates, or references, those assets belong to the skill directory, not the target repo you are working on.
+
+Rules:
+- Resolve supporting files relative to the directory containing this `SKILL.md`
+- Never assume `scripts/...` exists under the user's current repo
+- When showing runnable commands, make the skill-relative lookup explicit with a `SKILL_DIR` variable or an absolute path
+- State this rule in the skill body whenever the skill depends on bundled scripts
+
+Examples:
+
+```bash
+# ❌ BAD: Ambiguous cwd-dependent path
+python3 scripts/detect_spec_scope.py --repo "$PWD"
+
+# ❌ BAD: Repo-relative path that breaks for globally installed skills
+bash skills/workflow-web-access/scripts/check-deps.sh
+
+# ✅ GOOD: Explicit skill-relative path
+SKILL_DIR=/absolute/path/to/this-skill
+python3 "$SKILL_DIR/scripts/detect_spec_scope.py" --repo "$PWD"
+
+# ✅ GOOD: Same rule for shell helpers
+SKILL_DIR=/absolute/path/to/this-skill
+bash "$SKILL_DIR/scripts/check-deps.sh"
+```
+
 ## SKILL.md Structure
 
 **Frontmatter (YAML):**
@@ -317,8 +345,9 @@ See @graphviz-conventions.dot for graphviz style rules.
 
 **Visualizing for your human partner:** Use `render-graphs.js` in this directory to render a skill's flowcharts to SVG:
 ```bash
-./render-graphs.js ../some-skill           # Each diagram separately
-./render-graphs.js ../some-skill --combine # All diagrams in one SVG
+SKILL_DIR=/absolute/path/to/workflow-writing-skills
+node "$SKILL_DIR/render-graphs.js" ../some-skill           # Each diagram separately
+node "$SKILL_DIR/render-graphs.js" ../some-skill --combine # All diagrams in one SVG
 ```
 
 ## Code Examples
@@ -627,6 +656,7 @@ Deploying untested skills = deploying untested code. It's a violation of quality
 - [ ] Common mistakes section
 - [ ] No narrative storytelling
 - [ ] Supporting files only for tools or heavy reference
+- [ ] Bundled scripts and helpers resolve relative to the skill directory, not the target repo
 
 **Deployment:**
 - [ ] Commit skill to git and push to your fork (if configured)
