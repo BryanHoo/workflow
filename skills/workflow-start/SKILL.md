@@ -37,11 +37,11 @@ If the current environment does not support subagents or reliable parallel execu
 
 # Using Skills
 
-Read `references/task-routing.md` before choosing a heavy workflow. It defines the default lightweight path, escalation rules, and when parallelism is actually worth it.
+Read `references/task-routing.md` before choosing an implementation tier. It defines the route families, the `lightweight` / `medium` / `heavy` implementation split, and the escalation rules.
 
 ## The Rule
 
-**Invoke relevant or requested skills BEFORE substantial action.** Start by classifying the task, then choose the lightest workflow that still protects quality.
+**Invoke relevant or requested skills BEFORE substantial action.** Start by classifying the task type, then choose the lightest implementation tier that still protects quality.
 
 ```dot
 digraph skill_flow {
@@ -51,15 +51,15 @@ digraph skill_flow {
     "Classify task" [shape=diamond];
     "Read-only analysis" [shape=box];
     "Debugging or failure investigation" [shape=box];
-    "Direct local implementation" [shape=box];
-    "Planned implementation" [shape=box];
+    "Choose implementation tier" [shape=diamond];
+    "Lightweight implementation" [shape=box];
+    "Medium implementation" [shape=box];
+    "Heavy implementation" [shape=box];
     "Design or scope unclear?" [shape=diamond];
     "Use workflow-brainstorming" [shape=box];
     "Need a real execution plan?" [shape=diamond];
     "Use workflow-writing-plans" [shape=box];
-    "Parallelizable and worth delegation?" [shape=diamond];
-    "Use subagent / parallel workflow (if supported)" [shape=box];
-    "Use workflow-executing-plans or direct execution" [shape=box];
+    "Use workflow-executing-plans" [shape=box];
 
     "User message received" -> "Might any skill apply?";
     "Might any skill apply?" -> "Invoke Skill tool" [label="yes"];
@@ -67,29 +67,30 @@ digraph skill_flow {
     "Invoke Skill tool" -> "Classify task";
     "Classify task" -> "Read-only analysis" [label="read-only"];
     "Classify task" -> "Debugging or failure investigation" [label="bug/regression/failure"];
-    "Classify task" -> "Direct local implementation" [label="small local change"];
-    "Classify task" -> "Planned implementation" [label="cross-layer or non-trivial"];
-    "Planned implementation" -> "Design or scope unclear?";
+    "Classify task" -> "Choose implementation tier" [label="implementation"];
+    "Choose implementation tier" -> "Lightweight implementation" [label="tight local change"];
+    "Choose implementation tier" -> "Medium implementation" [label="bounded multi-file or shared-code change"];
+    "Choose implementation tier" -> "Heavy implementation" [label="cross-layer, unclear, or high-risk"];
+    "Debugging or failure investigation" -> "Choose implementation tier" [label="cause understood"];
+    "Heavy implementation" -> "Design or scope unclear?";
     "Design or scope unclear?" -> "Use workflow-brainstorming" [label="yes"];
     "Design or scope unclear?" -> "Need a real execution plan?" [label="no"];
     "Use workflow-brainstorming" -> "Need a real execution plan?";
     "Need a real execution plan?" -> "Use workflow-writing-plans" [label="yes"];
-    "Need a real execution plan?" -> "Parallelizable and worth delegation?" [label="no"];
-    "Use workflow-writing-plans" -> "Parallelizable and worth delegation?";
-    "Parallelizable and worth delegation?" -> "Use subagent / parallel workflow (if supported)" [label="yes"];
-    "Parallelizable and worth delegation?" -> "Use workflow-executing-plans or direct execution" [label="no"];
+    "Need a real execution plan?" -> "Use workflow-executing-plans" [label="no"];
+    "Use workflow-writing-plans" -> "Use workflow-executing-plans";
 }
 ```
 
 ## Routing Rules
 
-Use `references/task-routing.md` as the routing source of truth. Reuse its task classes and shared routing signals rather than inventing a fresh taxonomy in the moment.
+Use `references/task-routing.md` as the routing source of truth. Reuse its route families, implementation tiers, and shared routing signals rather than inventing a fresh taxonomy in the moment.
 
 ## User-visible routing
 
 After you choose the route, tell the user which route you are taking and why before substantial work begins.
 
-- Name the route explicitly, such as read-only analysis, debugging or failure investigation, direct local implementation, or planned implementation.
+- Name the route explicitly, such as `read-only analysis`, `debugging or failure investigation`, `lightweight implementation`, `medium implementation`, or `heavy implementation`.
 - Give the concrete reason using the task signals that triggered the route, not generic filler.
 - Phrase the announcement using the active language policy for the current session.
 - Keep the announcement brief, but do not keep the routing decision implicit.
@@ -117,13 +118,24 @@ Handle directly when the task is analysis, explanation, review without edits, or
 
 Use `workflow-systematic-debugging` before proposing fixes when diagnosing a real failure and implementation has not begun yet.
 
-### Direct local implementation
+### Lightweight implementation
 
-Default to direct implementation with a minimal mental or written plan when the task is local and verification is direct. If the task changes behavior and a failing automated check is practical, prefer `workflow-test-driven-development` rather than making ad hoc edits first. Do not force brainstorming, standalone specs, standalone plan files, worktrees, or subagents onto routine changes.
+Default to direct implementation with a minimal inline note when the task is local and verification is direct. If the task changes behavior and a failing automated check is practical, prefer `workflow-test-driven-development` rather than making ad hoc edits first. Do not force brainstorming, standalone specs, standalone plan files, worktrees, or heavyweight orchestration onto routine changes.
 
 If the task is explicitly non-behavioral cleanup, readability refactoring, or recently touched code simplification, invoke `workflow-code-simplifier` as the implementation skill instead of improvising cleanup rules.
 
-### Planned implementation
+### Medium implementation
+
+Use a medium route when the work is more than a tight local fix but still bounded enough that a short explicit checklist is sufficient:
+
+- shared code changes with understandable blast radius
+- multiple related files in one subsystem slice
+- bounded contract or config continuity concerns
+- verification that needs several focused checks instead of one obvious command
+
+Default to a short inline plan or checklist, then execute sequentially checkpoint by checkpoint in the current session. If the checklist stops being sufficient, upgrade to `workflow-writing-plans`. Do not skip this middle route by forcing the task into either ad hoc local execution or the heaviest planning flow.
+
+### Heavy implementation
 
 Use heavier workflows only when they add real value:
 
@@ -131,19 +143,21 @@ Use heavier workflows only when they add real value:
 - `workflow-writing-plans` when sequencing, coordination, or handoff needs a real plan
 - `workflow-executing-plans` for complex but mostly sequential work
 - `workflow-project-spec` whenever repo-specific implementation context should be initialized, loaded, or refreshed from `docs/workflow/spec/`
-- `workflow-subagent-driven-development` or `workflow-dispatching-parallel-agents` when tasks are genuinely independent, parallelism is useful, and the environment supports reliable delegation
-- fall back to `workflow-executing-plans` when the task is independent in theory but the environment does not support subagents or parallel execution
+- optional parallel workflows only when tasks are genuinely independent and the environment supports that mode reliably
+- fall back to `workflow-executing-plans` when the task is independent in theory but parallel execution is not worth the coordination cost
 - `workflow-using-git-worktrees` when isolation materially reduces risk
 
-Treat contract, schema, config, and cross-layer signals as strong reasons to enter this path even if the raw file count still looks small.
+Treat contract, schema, config, migration, and cross-layer signals as strong reasons to enter this path even if the raw file count still looks small.
 
 ### Shared Routing Signals
 
 When file paths, diff context, or repo-aware signals are available, reuse the same dimensions exposed later by `workflow-project-check`:
 
 - `docs_only` and `test_only` usually stay light
-- `cross_layer`, `contract_change`, `schema_change`, and most `config_change` work should not stay on the lightest path
-- `shared_code_change` means the blast radius may be larger than the diff size suggests
+- `shared_code_change` means the blast radius may be larger than the diff size suggests, so it should usually be at least medium
+- `cross_layer` and `contract_change` should usually be at least medium, and often heavy when many callers or boundaries are involved
+- `schema_change` is usually heavy
+- most `config_change` work should be at least medium, and heavy when rollout or environment coordination matters
 
 This keeps entry routing and final verification aligned around one vocabulary.
 
@@ -160,6 +174,7 @@ These thoughts mean STOP and re-triage:
 | -------------------------------------------- | ------------------------------------------------------------- |
 | "This is just a simple question"             | Decide whether it is read-only, debugging, or implementation. |
 | "I need a full workflow for safety"          | Use the lightest path that still covers the risk.             |
+| "Everything is either local or heavy"        | Medium implementation exists for bounded but non-trivial work. |
 | "Let me skip the relevant skill"             | If a skill fits, use it.                                      |
 | "I remember this skill"                      | Skills evolve. Read current version.                          |
 | "Everything should go through brainstorming" | Lightweight changes usually should not.                       |
@@ -171,7 +186,7 @@ These thoughts mean STOP and re-triage:
 When multiple skills could apply, use this order:
 
 1. **Routing / process skills first** (debugging, brainstorming, planning) - these choose the path
-2. **Execution skills second** (executing-plans, subagent workflows, implementation-domain skills)
+2. **Execution skills second** (executing-plans, implementation-domain skills, optional parallel workflows)
 3. **Verification / review skills last** - these confirm the result before completion
 
 Examples:
@@ -179,8 +194,9 @@ Examples:
 - "Explain this module" → direct read-only work
 - "Fix this failing test, not sure why" → workflow-systematic-debugging first
 - "Update copy in one component" → lightweight implementation
+- "Adjust shared validation used by two callers" → medium implementation
 - "Simplify this recently changed module without changing behavior" → workflow-code-simplifier
-- "Design and build a multi-file feature" → workflow-brainstorming, then workflow-writing-plans if needed
+- "Design and build a cross-layer feature" → heavy implementation, then workflow-brainstorming and workflow-writing-plans as needed
 - "Execute this clear plan in one session" → workflow-executing-plans
 - "Several independent tasks" → subagent or parallel workflow only if support is reliable; otherwise execute sequentially in the current session
 - "Work is implemented and needs project-aware verification" → workflow-project-check, then workflow-verification-before-completion
@@ -195,4 +211,4 @@ The skill itself tells you which.
 
 ## User Instructions
 
-Instructions say WHAT, not HOW. "Add X" or "Fix Y" doesn't mean skip workflows, but it also does not force the heaviest workflow when a lighter one is sufficient.
+Instructions say WHAT, not HOW. "Add X" or "Fix Y" doesn't mean skip workflows, but it also does not force the heaviest workflow when `lightweight` or `medium` is sufficient.

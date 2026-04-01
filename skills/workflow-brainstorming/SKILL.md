@@ -1,13 +1,13 @@
 ---
 name: workflow-brainstorming
-description: Use when requirements, boundaries, or important trade-offs need collaborative design before implementation; skip this for lightweight local changes that already have clear scope and direct verification
+description: Use when medium or heavy implementation still needs design work because requirements, boundaries, or important trade-offs are unclear; skip this for lightweight implementation and medium work that already has a clear checklist
 ---
 
 # Brainstorming Ideas Into Designs
 
 Use this skill to refine ambiguous or high-impact implementation work before writing code.
 
-Start by understanding the current project context, then decide whether the task really needs collaborative design work or just a lightweight implementation plan.
+Start by understanding the current project context, then decide whether the task really needs collaborative design work or whether `medium implementation` or `heavy implementation` can proceed with an already-clear checklist or plan.
 
 ## When to Use
 
@@ -18,16 +18,18 @@ Use `workflow-brainstorming` when one or more are true:
 - the work touches multiple subsystems or shared contracts
 - the user wants help exploring options before implementation
 
-Do **not** use this skill for routine local changes such as small bug fixes, copy edits, config changes, narrow test updates, or other lightweight tasks that can be implemented safely with a short plan.
+Do **not** use this skill for routine local changes such as small bug fixes, copy edits, narrow config changes, narrow test updates, or other `lightweight implementation` work that can be implemented safely with a short plan.
+
+If the work is already clear enough for `medium implementation`, skip brainstorming and move straight to a short explicit checklist or `workflow-writing-plans`, depending on the verification burden.
 
 ## Lightweight Exception
 
-If the task is lightweight and the goal, boundary, risk, and verification are already clear:
+If the task is `lightweight implementation` and the goal, boundary, risk, and verification are already clear:
 1. capture a short plan inline
 2. implement directly
 3. verify directly
 
-Do not force a separate spec or approval loop onto a task that does not benefit from it.
+Do not force a separate design loop onto work that already fits `lightweight implementation` or a clear `medium implementation` checklist.
 
 ## Process
 
@@ -41,7 +43,7 @@ Do not force a separate spec or approval loop onto a task that does not benefit 
 
 - ask questions only when the answer materially changes the design
 - prefer one question at a time when the topic is genuinely open-ended
-- for medium tasks, it is often better to present 2-3 concrete options with a recommendation instead of stretching the user through long discovery
+- for `medium implementation`, it is often better to present 2-3 concrete options with a recommendation instead of stretching the user through long discovery
 - do not ask questions that can already be answered from the repo, prior context, or governing instructions
 
 ### 3. Propose options when trade-offs matter
@@ -53,8 +55,8 @@ Do not force a separate spec or approval loop onto a task that does not benefit 
 ### 4. Present the design at the right weight
 
 Scale the output to the task:
-- lightweight medium task: a short design summary may be enough
-- larger task: cover architecture, boundaries, data flow, failure cases, and verification
+- `medium implementation`: a short design summary may be enough
+- `heavy implementation`: cover architecture, boundaries, data flow, failure cases, and verification
 
 Ask for approval only when the design contains decisions the user should confirm. Do not create approval ceremony for straightforward work.
 
@@ -73,8 +75,9 @@ If no durable artifact is needed, keep the design in the conversation and move f
 ## Transition to Implementation
 
 After design work:
-- go directly to implementation for small, well-bounded tasks
-- use `workflow-writing-plans` when execution needs a real plan or handoff artifact
+- go directly to `lightweight implementation` when the work has collapsed into a small, well-bounded task
+- go directly to `medium implementation` when a short checklist is enough to execute safely
+- use `workflow-writing-plans` when `heavy implementation` or a coordination-heavy `medium implementation` still needs a real plan or handoff artifact
 
 Do not automatically force every brainstormed task into a heavyweight plan document.
 

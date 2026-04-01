@@ -1,18 +1,28 @@
 # Task Routing
 
-Use the lightest path that still preserves quality.
+Use the lightest path that still preserves correctness, verification, and maintainability.
+
+## Routing Model
+
+Separate task type from implementation weight:
+
+- `read-only analysis` means no edits
+- `debugging or failure investigation` means diagnose first, then re-enter implementation through the correct tier
+- implementation work must be classified into exactly one tier: `lightweight implementation`, `medium implementation`, or `heavy implementation`
+
+This avoids collapsing most changes into only two execution paths.
 
 ## Default Principles
 
-- Prefer the shortest path that satisfies correctness, verification, and maintainability.
-- Check whether work can be parallelized before defaulting to serial execution.
+- Prefer the shortest path that still satisfies correctness, verification, and maintainability.
+- Do not skip the medium tier by forcing bounded multi-file or shared-code work into either a local fix or a heavyweight planning flow.
 - Do not upgrade a task into a heavier workflow unless the current path stops being sufficient.
-- Keep documentation in service of execution. Only persist specs or plans when the user asks, project policy requires it, or the artifact has clear reuse or handoff value.
-- Use one classification vocabulary from entry to completion. When task paths, diff, or repo shape are available, reuse the same signals later surfaced by `workflow-project-check`.
+- Keep documentation in service of execution. Persist specs or plans only when the user asks, project policy requires it, or the artifact has clear reuse or handoff value.
+- Use one routing vocabulary from entry to completion so early triage and final verification talk about the same thing.
 - Once the route is chosen, state the selected route and the concrete reason to the user before substantial work begins.
 - If the route escalates or de-escalates later, state the new route and the reason for the change.
 
-## Task Classes
+## Route Families
 
 ### 1. Read-only analysis
 
@@ -31,61 +41,100 @@ Use a debugging-first path when the task is about:
 - diagnosing a cause before deciding on the fix
 
 Default path:
-1. Use `workflow-systematic-debugging` before proposing implementation changes
-2. Capture the failing behavior, reproduction path, or missing evidence
-3. Only move into implementation once the likely cause is understood
+1. Use `workflow-systematic-debugging` before proposing implementation changes.
+2. Capture the failing behavior, reproduction path, or missing evidence.
+3. Once the likely cause is understood, explicitly reclassify the implementation as `lightweight`, `medium`, or `heavy`.
 
-Treat debugging as a first-class route, not just a subtype of implementation.
+Treat debugging as a first-class route, not as an implementation tier.
 
-### 3. Direct local implementation
+## Implementation Tiers
 
-Treat the task as direct local implementation when most of these are true:
-- single file or small local change
-- clear bug fix, behavior tweak with obvious boundary, or non-behavioral cleanup
-- config, copy, test, or small documentation update with limited blast radius
-- little or no shared API / schema / persistence / config impact
-- direct verification is obvious
-- no strong cross-layer or shared-contract signal
+### 1. Lightweight implementation
+
+Use this tier when most of these are true:
+- single file or very tight local cluster
+- clear behavior tweak, narrow bug fix, or bounded non-behavioral cleanup
+- docs, copy, tests, or small config work with limited blast radius
+- no shared API, schema, persistence, migration, or rollout concern
+- direct verification is obvious from one focused command or scenario
+- no durable plan or explicit checkpoint list is needed
 
 Default path:
-1. Capture a minimal plan in working memory or brief notes: goal, boundary, risks, verification
-2. If the task changes behavior and a failing automated check can be written first, prefer `workflow-test-driven-development`
-3. If the task is explicitly readability-only cleanup or code simplification, use `workflow-code-simplifier`
-4. Implement directly
-5. Run targeted verification
-6. Use review only if the change is risky, user-requested, or likely to benefit from another pass
+1. Capture a minimal inline note: goal, boundary, main risk, verification.
+2. If the task changes behavior and a failing automated check is practical, prefer `workflow-test-driven-development`.
+3. If the task is explicitly readability-only cleanup or code simplification, use `workflow-code-simplifier`.
+4. Implement directly in the current session.
+5. Run targeted verification.
+6. Use review only if the risk grows, the user asked for it, or the change becomes merge-bound.
 
-Question-asking rule:
-- Ask at most one blocking question first
-- If the risk is controllable, state the assumption and proceed
+Verification bar:
+- targeted checks cover the changed surface
+- manual verification is acceptable only when automated coverage is impractical and the scenario is stated explicitly
+- if the boundary stops being local, escalate to `medium implementation`
 
-### 4. Planned implementation
+### 2. Medium implementation
 
-Use a planned path when the task includes one or more of:
-- unclear requirements or important product trade-offs
-- multi-step implementation across several files or subsystems
-- shared logic, public API, schema, persistence, concurrency, migration, or config impact
-- explicit cross-layer coordination between callers and callees
-- work that benefits from handoff artifacts or cross-session coordination
-- validation that is not obvious from a direct test command
+Use this tier when one or more of these are true:
+- multiple related files change, but the work still fits inside one bounded slice
+- shared code changes, but the blast radius is understandable
+- caller-callee continuity, bounded contract change, or non-trivial config impact matters
+- sequencing matters enough that a short explicit checklist is safer than ad hoc execution
+- verification needs multiple focused checks instead of one obvious command
+- design is mostly clear, but `lightweight implementation` is too loose
+
+Default path:
+1. Write a short explicit inline plan or checklist covering files, risks, and verification checkpoints.
+2. If the task changes behavior and a failing automated check is practical, prefer `workflow-test-driven-development` within the checkpoints.
+3. Execute sequentially checkpoint by checkpoint in the current session.
+4. Verify each checkpoint before moving on.
+5. Use `workflow-writing-plans` only if the inline checklist stops being sufficient.
+6. Use review when shared code, caller-callee continuity, or merge risk makes a second pass worthwhile.
+
+Verification bar:
+- each checkpoint has a concrete command or scenario
+- caller-callee continuity, config continuity, or shared-code behavior is checked where relevant
+- final verification covers the bounded subsystem, not just the last edited file
+- if the work grows into cross-layer coordination, public contract changes, schema changes, or unclear design, escalate to `heavy implementation`
+
+### 3. Heavy implementation
+
+Use this tier when one or more of these are true:
+- requirements, boundaries, or product trade-offs are still unclear
+- multiple subsystems or layers must change together
+- public or widely shared contracts are changing
+- schema, persistence, migration, concurrency, rollout, or environment-wide config impact is involved
+- durable planning or handoff artifacts have clear value
+- verification spans multiple checkpoints, layers, or environments and is not obvious from a direct local command
 
 Default path:
 - use `workflow-brainstorming` when design, boundaries, or trade-offs need active refinement
 - use `workflow-writing-plans` when a real execution plan is needed
-- prefer `workflow-executing-plans` for complex work that is still mostly sequential
-- use `workflow-subagent-driven-development` or `workflow-dispatching-parallel-agents` only when tasks are genuinely independent and the platform supports that mode reliably
+- prefer `workflow-executing-plans` for the default sequential implementation path
+- use `workflow-project-spec` whenever repo-specific implementation context should be initialized, loaded, or refreshed from `docs/workflow/spec/`
+- use `workflow-using-git-worktrees` only when isolation materially reduces risk
+- use `workflow-requesting-code-review` when the change is major, risky, or merge-bound
 
-## User-visible route announcement
+Heavy implementation is defined by stronger planning and verification requirements, not by defaulting to subagents.
+
+Verification bar:
+- execution follows explicit checkpoints instead of implicit local reasoning
+- cross-layer behavior, compatibility, and rollout-sensitive paths are verified where relevant
+- schema or persistence changes include compatibility or migration validation
+- if the remaining work collapses into a bounded subsystem slice, de-escalate to `medium implementation`
+
+## User-visible Route Announcement
 
 When the route is determined:
 1. Name the route explicitly.
 2. State the concrete signals that selected it.
 3. Use the active session language policy when phrasing the explanation.
 4. Keep the explanation brief and actionable.
+5. If debugging turns into implementation, announce both the transition and the selected implementation tier.
 
 Good examples:
-- "当前走 direct local implementation，因为改动边界局部、验证路径直接，而且没有明显 cross-layer 信号。"
-- "当前走 planned implementation，因为这个改动涉及 shared contract 和 config change，轻量路径不够稳妥。"
+- "当前走 lightweight implementation，因为改动边界局部、验证路径直接，而且没有 shared contract 信号。"
+- "当前走 medium implementation，因为会改动 shared code 和调用方校验逻辑，虽然范围受控，但不能按单文件修补处理。"
+- "当前走 heavy implementation，因为这个改动涉及 cross-layer coordination、config rollout 和更高的验证要求。"
 
 Bad examples:
 - "我先按合适的流程处理。"
@@ -97,47 +146,53 @@ The point is visibility: routing should be understandable to the user, not just 
 
 When task paths, a diff, or known files are available, reuse the same dimensions as `workflow-project-check`.
 
-- `docs_only` or `test_only`: usually stay on the direct path unless the user explicitly asks for broader process
-- `cross_layer`: upgrade to planned implementation and require cross-layer verification later
-- `contract_change`: upgrade to planned implementation and verify caller-callee continuity
-- `schema_change`: upgrade to planned implementation and treat storage compatibility as part of the design
-- `config_change`: usually upgrade to planned implementation unless the scope is demonstrably local
-- `shared_code_change`: treat as at least medium risk even if the edit is mechanically small
-- `new_file`: reconsider placement, abstraction boundary, and whether the new pattern should remain local
+- `docs_only` or `test_only`: usually stay `lightweight` unless the user explicitly asks for broader process
+- `cross_layer`: upgrade to at least `medium`; use `heavy` when multiple boundaries or rollout-sensitive paths are involved
+- `contract_change`: upgrade to at least `medium`; use `heavy` when the contract is public, widely shared, or has many callers
+- `schema_change`: usually `heavy`
+- `config_change`: usually at least `medium`; use `heavy` when the config affects rollout, environments, or multiple layers
+- `shared_code_change`: treat as at least `medium` even if the diff is mechanically small
+- `new_file`: reconsider abstraction boundaries; often at least `medium` when the new file introduces reusable behavior
 
-If `workflow-project-check` would later produce `checkMode=local+cross-layer`, the task usually should not have stayed on the lightest direct path.
+If `workflow-project-check` would later produce `checkMode=local+cross-layer`, the task usually should not have stayed `lightweight`.
 
 ## Behavior vs Cleanup
 
-- Behavior change: prefer TDD or debugging-first flow when a failing check or reproduction is practical
-- Non-behavioral cleanup after green: keep the path light if the boundary remains local and verification is still direct, and use `workflow-code-simplifier` for the cleanup pass
+- behavior change: prefer TDD or debugging-first flow when a failing check or reproduction is practical
+- non-behavioral cleanup after green: keep the route as light as the boundary allows, and use `workflow-code-simplifier` for the cleanup pass
 
 ## Escalate or De-escalate
 
-Escalate to a heavier process when:
-- the change expands beyond the original boundary
-- shared contracts or cross-cutting behavior become involved
-- verification coverage is weak
-- the task stops being locally understandable
+Escalate from `lightweight` to `medium` when:
+- the change expands beyond a tight local boundary
+- shared code or caller-callee continuity becomes relevant
+- verification needs multiple focused checks
 
-De-escalate to a lighter process when:
-- the work collapses into a local fix
-- the remaining risk is low and verification is direct
-- extra documentation or orchestration would cost more than it returns
+Escalate from `medium` to `heavy` when:
+- requirements or design boundaries become unclear
+- cross-layer coordination or public contract changes appear
+- schema, persistence, migration, rollout, or environment-wide config impact appears
+- durable planning artifacts become necessary
 
-When in doubt, prefer explicit escalation for contract, schema, config, and cross-layer work; prefer de-escalation for docs-only, test-only, and narrow cleanup work.
+De-escalate from `heavy` to `medium` when:
+- design questions are resolved
+- the remaining work is a bounded subsystem slice with explicit checkpoints
+
+De-escalate from `medium` to `lightweight` when:
+- the work collapses back into a local fix
+- the remaining risk is low and verification is once again direct
 
 ## Worktree Guidance
 
 Use `workflow-using-git-worktrees` when isolation materially helps:
 - current branch is dirty and conflicts with the task
-- multiple branches or parallel efforts need isolation
+- multiple branches need isolation
 - the change is risky enough that a clean workspace matters
 
-Do not create a worktree by default for routine local changes on the current branch.
+Do not create a worktree by default for routine `lightweight` or `medium` changes.
 
 ## Review and Verification
 
 - Before claiming anything is complete, fixed, or passing, use `workflow-verification-before-completion`.
-- Use `workflow-requesting-code-review` for major, risky, or merge-bound changes, or when a fresh pass is likely to catch mistakes.
+- Use `workflow-requesting-code-review` for `heavy` changes, and for `medium` changes when a fresh pass is likely to catch shared-code or continuity issues.
 - Use `workflow-receiving-code-review` when review feedback arrives and needs technical evaluation.

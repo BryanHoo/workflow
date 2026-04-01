@@ -1,6 +1,6 @@
 ---
 name: workflow-executing-plans
-description: Use when you have a written or clearly stated implementation plan and the work is best executed in one session without heavy parallel coordination; this is the default execution path for complex but mostly sequential tasks
+description: Use when you have a written or clearly stated implementation plan and medium or heavy implementation should be executed in one session with explicit checkpoints; this is the default path for heavy implementation and for medium work that outgrew an inline checklist
 ---
 
 # Executing Plans
@@ -11,7 +11,7 @@ Load the plan, review it critically, execute the work, and verify each checkpoin
 
 **Announce at start:** "I'm using the workflow-executing-plans skill to implement this plan."
 
-This is the default execution path for non-trivial work that does **not** clearly benefit from subagent-driven parallelism.
+This is the default execution path for `heavy implementation` and for `medium implementation` work that no longer fits a short inline checklist.
 
 It is also the fallback path when the plan would conceptually benefit from delegation, but the current environment does not support subagents or reliable parallel execution.
 
@@ -19,7 +19,7 @@ It is also the fallback path when the plan would conceptually benefit from deleg
 
 1. Read the plan or the explicit task list
 2. Check whether it is still the right size for the task
-3. If the work has collapsed into a lightweight local change, compress the plan and implement directly
+3. If the work has collapsed into `lightweight implementation`, compress the plan and implement directly
 4. If the work is bigger or riskier than expected, pause and refine the plan before coding
 
 Review for:
@@ -53,6 +53,7 @@ Switch away from this skill only if the task materially changes:
 - use `workflow-subagent-driven-development` when the work breaks into genuinely independent chunks, parallel coordination is worth it, and the environment supports it
 - use `workflow-writing-plans` again if the plan no longer reflects reality
 - use `workflow-systematic-debugging` if execution turns into root-cause investigation
+- de-escalate to a direct `medium implementation` checklist if the remaining work no longer needs a full written plan
 
 ## Step 4: Complete Development
 
@@ -79,6 +80,7 @@ Ask for clarification rather than guessing.
 
 - treat plans as guides, not scripts to follow blindly after reality changes
 - keep execution sequential unless parallelism is clearly beneficial
+- de-escalate when the remaining work no longer needs `workflow-executing-plans`
 - do not create a worktree by default; use one only when isolation helps
 - never start implementation on main/master without explicit user consent
 

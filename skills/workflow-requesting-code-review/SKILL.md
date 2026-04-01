@@ -1,6 +1,6 @@
 ---
 name: workflow-requesting-code-review
-description: Use when a change is major, risky, merge-bound, or otherwise likely to benefit from a fresh technical pass; optional for lightweight local changes with direct verification
+description: Use when medium or heavy implementation is risky, merge-bound, or otherwise likely to benefit from a fresh technical pass; optional for lightweight implementation with direct verification
 ---
 
 # Requesting Code Review
@@ -14,18 +14,18 @@ If the environment does not support reviewer subagents, run the same review inli
 ## When to Request Review
 
 **Usually required:**
-- After completing a major or risky feature
+- After completing `heavy implementation`
 - Before merge to main
 - When a subagent-driven workflow defines review checkpoints
 
 **Optional but valuable:**
-- Before shipping medium-sized behavior changes
+- Before shipping `medium implementation` behavior changes
 - When stuck (fresh perspective)
 - Before refactoring (baseline check)
 - After fixing complex bug
 
 **Usually unnecessary:**
-- tiny local changes with clear scope and direct verification
+- `lightweight implementation` with clear scope and direct verification
 - copy, config, or similarly low-risk edits unless the user asks for review
 
 If the repo contains `docs/workflow/spec/` and code changed, run `workflow-project-check` before requesting review so the reviewer sees a diff that has already passed the project-aware verification pass.

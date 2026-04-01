@@ -21,11 +21,13 @@ Use the likely verification commands and likely spec update targets to strengthe
 
 ### `workflow-start`
 
-When file paths, repo shape, or a partial diff are already known early, `workflow-start` may reuse the same scope language from `workflow-project-check` to decide whether work stays direct or upgrades into a planned path.
+When file paths, repo shape, or a partial diff are already known early, `workflow-start` may reuse the same scope language from `workflow-project-check` to decide whether work stays `lightweight`, upgrades to `medium`, or requires `heavy` implementation.
 
-- `docs_only` and `test_only` usually stay light
-- `cross_layer`, `contract_change`, `schema_change`, and most `config_change` work should upgrade
-- `shared_code_change` should raise the assumed blast radius even when the diff is small
+- `docs_only` and `test_only` usually stay `lightweight`
+- `shared_code_change` usually upgrades work to at least `medium`
+- `cross_layer` and `contract_change` usually mean at least `medium`, and often `heavy`
+- `schema_change` is usually `heavy`
+- most `config_change` work should upgrade to at least `medium`
 
 ## Downstream Skill
 

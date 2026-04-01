@@ -9,7 +9,7 @@ Prompt:
 > Simplify the recently changed code without changing behavior.
 
 Observed baseline from the current workflow docs before this skill:
-- `workflow-start` routed the task to generic direct local implementation.
+- `workflow-start` routed the task to a generic lightweight implementation path with no dedicated simplification rule.
 - No workflow skill explicitly covered readability-only cleanup.
 - The agent had no workflow-level cue to invoke a dedicated simplification pass.
 

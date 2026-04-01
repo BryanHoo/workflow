@@ -30,7 +30,7 @@ Do not use this skill when:
 
 ## Core Rules
 
-- Preserve exact behavior. If behavior changes, stop and route back to the correct implementation workflow.
+- Preserve exact behavior. If behavior changes, stop and route back to the correct implementation tier.
 - Stay close to recently modified code unless the user explicitly expands scope.
 - Prefer one end-of-task cleanup pass over repeated cleanup at every checkpoint.
 - Prefer explicit, readable code over clever compression or fewer lines.
@@ -45,7 +45,7 @@ Do not use this skill when:
 | User explicitly wants cleaner code | Invoke this skill directly |
 | Main implementation is green | Use this skill once as the default final cleanup pass, then re-run verification |
 | TDD reaches a local green step | Keep cleanup local unless a larger end-of-task pass is more efficient |
-| Cleanup would change behavior or contracts | Stop and route back to planning, debugging, or TDD |
+| Cleanup would change behavior or contracts | Stop and route back to `lightweight` / `medium` / `heavy` implementation, plus debugging or TDD when appropriate |
 
 ## Refinement Process
 

@@ -1,6 +1,6 @@
 ---
 name: workflow-writing-plans
-description: "Use when implementation needs a real execution plan before coding: multi-step changes, cross-file coordination, unclear sequencing, or handoff across sessions or agents; skip for lightweight local changes that can be implemented safely with a short inline plan"
+description: "Use when medium or heavy implementation needs a real execution plan before coding: multi-step changes, cross-file coordination, unclear sequencing, or handoff across sessions or agents; skip for lightweight implementation and medium work that is still safe with a short inline checklist"
 ---
 
 # Writing Plans
@@ -14,13 +14,13 @@ Write plans that are just detailed enough to guide correct implementation.
 If the repo contains `docs/workflow/spec/`, announce that you are also using `workflow-project-spec` to load the relevant project spec before finalizing the plan.
 If the work will end with project-aware verification, announce that `workflow-project-check` will be used to derive the final verification scope from the actual diff.
 
-Do not create a heavyweight plan for a task that can be implemented safely with a short checklist.
+Do not create a heavyweight plan for work that still fits `lightweight implementation` or a clear `medium implementation` checklist.
 
 ## Choose the Right Plan Weight
 
 ### Short inline plan
 
-Use an inline plan in the conversation when the task is medium-sized but still local enough to keep in context.
+Use an inline plan in the conversation when the task belongs to `medium implementation` and still fits comfortably in session context.
 
 Minimum contents:
 - goal
@@ -31,6 +31,7 @@ Minimum contents:
 ### Full plan document
 
 Write a standalone plan file when one or more are true:
+- the task is clearly `heavy implementation`
 - the work spans multiple subsystems
 - execution will happen across sessions
 - multiple agents or reviewers need a shared artifact
@@ -122,9 +123,9 @@ These are plan failures:
 
 After planning, choose execution mode based on the work:
 
-- use `workflow-executing-plans` for complex but mostly sequential work
+- use `workflow-executing-plans` for most `heavy implementation` work and for `medium implementation` work whose checklist now needs explicit checkpoints
 - use `workflow-subagent-driven-development` when tasks are genuinely independent, subagent coordination is worth the overhead, and the environment supports reliable delegation
 - fall back to `workflow-executing-plans` when the tasks are independent in theory but the environment does not support subagents or parallel execution
-- skip both and implement directly if the plan has collapsed into a lightweight local change
+- skip both and implement directly if the plan has collapsed into `lightweight implementation`
 
 Do not require a worktree unless isolation meaningfully reduces risk.
