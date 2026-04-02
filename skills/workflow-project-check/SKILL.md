@@ -24,11 +24,7 @@ Its classification vocabulary is also suitable upstream. When task paths or like
 - Pass the resulting command and checklist outputs into `workflow-verification-before-completion` before claiming success.
 - Resolve bundled scripts from this skill's own directory. Do not search the target repo for `classify_change_scope.py` or `build_check_plan.py`.
 
-Before running any bundled script, set:
-
-```bash
-SKILL_DIR=/absolute/path/to/workflow-project-check
-```
+When running bundled scripts, define `SKILL_DIR` in the same command invocation. Some tool runners start a fresh shell per command, so a separate assignment step will be lost.
 
 ## Mode 1: Classify Change Scope
 
@@ -37,16 +33,16 @@ Use this first when the task needs scope-aware verification.
 Run:
 
 ```bash
-python3 "$SKILL_DIR/scripts/classify_change_scope.py" --repo "$PWD"
+SKILL_DIR="/absolute/path/to/workflow-project-check"; python3 "${SKILL_DIR}/scripts/classify_change_scope.py" --repo "$PWD"
 ```
 
 Useful options:
 
 ```bash
-python3 "$SKILL_DIR/scripts/classify_change_scope.py" --repo "$PWD" --task "<task summary>"
-python3 "$SKILL_DIR/scripts/classify_change_scope.py" --repo "$PWD" --paths src/api/user.ts src/components/UserForm.tsx
-python3 "$SKILL_DIR/scripts/classify_change_scope.py" --repo "$PWD" --package web
-python3 "$SKILL_DIR/scripts/classify_change_scope.py" --repo "$PWD" --json
+SKILL_DIR="/absolute/path/to/workflow-project-check"; python3 "${SKILL_DIR}/scripts/classify_change_scope.py" --repo "$PWD" --task "<task summary>"
+SKILL_DIR="/absolute/path/to/workflow-project-check"; python3 "${SKILL_DIR}/scripts/classify_change_scope.py" --repo "$PWD" --paths src/api/user.ts src/components/UserForm.tsx
+SKILL_DIR="/absolute/path/to/workflow-project-check"; python3 "${SKILL_DIR}/scripts/classify_change_scope.py" --repo "$PWD" --package web
+SKILL_DIR="/absolute/path/to/workflow-project-check"; python3 "${SKILL_DIR}/scripts/classify_change_scope.py" --repo "$PWD" --json
 ```
 
 The classifier determines:
@@ -65,15 +61,15 @@ Use this after classification to produce the actual verification plan.
 Run:
 
 ```bash
-python3 "$SKILL_DIR/scripts/build_check_plan.py" --repo "$PWD"
+SKILL_DIR="/absolute/path/to/workflow-project-check"; python3 "${SKILL_DIR}/scripts/build_check_plan.py" --repo "$PWD"
 ```
 
 Useful options:
 
 ```bash
-python3 "$SKILL_DIR/scripts/build_check_plan.py" --repo "$PWD" --task "<task summary>" --json
-python3 "$SKILL_DIR/scripts/build_check_plan.py" --repo "$PWD" --paths packages/web/src/routes/users.tsx
-python3 "$SKILL_DIR/scripts/build_check_plan.py" --repo "$PWD" --package api
+SKILL_DIR="/absolute/path/to/workflow-project-check"; python3 "${SKILL_DIR}/scripts/build_check_plan.py" --repo "$PWD" --task "<task summary>" --json
+SKILL_DIR="/absolute/path/to/workflow-project-check"; python3 "${SKILL_DIR}/scripts/build_check_plan.py" --repo "$PWD" --paths packages/web/src/routes/users.tsx
+SKILL_DIR="/absolute/path/to/workflow-project-check"; python3 "${SKILL_DIR}/scripts/build_check_plan.py" --repo "$PWD" --package api
 ```
 
 The plan returns:

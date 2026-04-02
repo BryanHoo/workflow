@@ -4,7 +4,7 @@
 
 - 默认地址：`http://127.0.0.1:3456`
 - 可通过环境变量 `WORKFLOW_WEB_ACCESS_PORT` 覆盖端口
-- 推荐启动方式：先设 `SKILL_DIR=/absolute/path/to/workflow-web-access`，再运行 `bash "$SKILL_DIR/scripts/check-deps.sh"`
+- 推荐启动方式：在同一条命令里设置并使用 `SKILL_DIR`，例如 `SKILL_DIR="/absolute/path/to/workflow-web-access"; bash "${SKILL_DIR}/scripts/check-deps.sh"`
 - Proxy 启动后可持续复用，不建议任务结束时主动停止
 - 在当前 Codex 环境里，如果沙箱阻止访问本机端口，相关 `curl` 或连通性检测需要用提权方式执行
 

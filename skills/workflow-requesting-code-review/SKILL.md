@@ -34,8 +34,7 @@ If the repo contains `docs/workflow/spec/` and code changed, run `workflow-proje
 
 **1. Get git SHAs:**
 ```bash
-BASE_SHA=$(git rev-parse HEAD~1)  # or origin/main
-HEAD_SHA=$(git rev-parse HEAD)
+BASE_SHA="$(git rev-parse HEAD~1)"; HEAD_SHA="$(git rev-parse HEAD)"  # or origin/main
 ```
 
 **2. Dispatch code-reviewer subagent when supported:**
@@ -74,8 +73,7 @@ Review should inspect a technically prepared diff, not substitute for missing lo
 
 You: Let me request code review before proceeding.
 
-BASE_SHA=$(git log --oneline | grep "Task 1" | head -1 | awk '{print $1}')
-HEAD_SHA=$(git rev-parse HEAD)
+BASE_SHA="$(git log --oneline | grep "Task 1" | head -1 | awk '{print $1}')"; HEAD_SHA="$(git rev-parse HEAD)"
 
 [Dispatch workflow-code-reviewer subagent]
   WHAT_WAS_IMPLEMENTED: Verification and repair functions for conversation index

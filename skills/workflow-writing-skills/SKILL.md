@@ -98,6 +98,7 @@ Rules:
 - Resolve supporting files relative to the directory containing this `SKILL.md`
 - Never assume `scripts/...` exists under the user's current repo
 - When showing runnable commands, make the skill-relative lookup explicit with a `SKILL_DIR` variable or an absolute path
+- For runnable snippets, prefer defining and using `SKILL_DIR` in the same command line because some runners spawn a fresh shell per command
 - State this rule in the skill body whenever the skill depends on bundled scripts
 
 Examples:
@@ -109,13 +110,11 @@ python3 scripts/detect_spec_scope.py --repo "$PWD"
 # ❌ BAD: Repo-relative path that breaks for globally installed skills
 bash skills/workflow-web-access/scripts/check-deps.sh
 
-# ✅ GOOD: Explicit skill-relative path
-SKILL_DIR=/absolute/path/to/this-skill
-python3 "$SKILL_DIR/scripts/detect_spec_scope.py" --repo "$PWD"
+# ✅ GOOD: Explicit skill-relative path in a single invocation
+SKILL_DIR="/absolute/path/to/this-skill"; python3 "${SKILL_DIR}/scripts/detect_spec_scope.py" --repo "$PWD"
 
 # ✅ GOOD: Same rule for shell helpers
-SKILL_DIR=/absolute/path/to/this-skill
-bash "$SKILL_DIR/scripts/check-deps.sh"
+SKILL_DIR="/absolute/path/to/this-skill"; bash "${SKILL_DIR}/scripts/check-deps.sh"
 ```
 
 ## SKILL.md Structure
@@ -345,9 +344,8 @@ See @graphviz-conventions.dot for graphviz style rules.
 
 **Visualizing for your human partner:** Use `render-graphs.js` in this directory to render a skill's flowcharts to SVG:
 ```bash
-SKILL_DIR=/absolute/path/to/workflow-writing-skills
-node "$SKILL_DIR/render-graphs.js" ../some-skill           # Each diagram separately
-node "$SKILL_DIR/render-graphs.js" ../some-skill --combine # All diagrams in one SVG
+SKILL_DIR="/absolute/path/to/workflow-writing-skills"; node "${SKILL_DIR}/render-graphs.js" ../some-skill           # Each diagram separately
+SKILL_DIR="/absolute/path/to/workflow-writing-skills"; node "${SKILL_DIR}/render-graphs.js" ../some-skill --combine # All diagrams in one SVG
 ```
 
 ## Code Examples
