@@ -1,6 +1,6 @@
 # Task Routing
 
-Use the lightest path that still preserves correctness, verification, and maintainability.
+Use the lightest safe path that still preserves correctness, verification, and maintainability. When risk signals are ambiguous, bias toward earlier escalation and de-escalate only after boundaries are clear.
 
 ## Routing Model
 
@@ -16,7 +16,8 @@ This avoids collapsing most changes into only two execution paths.
 
 - Prefer the shortest path that still satisfies correctness, verification, and maintainability.
 - Do not skip the medium tier by forcing bounded multi-file or shared-code work into either a local fix or a heavyweight planning flow.
-- Do not upgrade a task into a heavier workflow unless the current path stops being sufficient.
+- If uncertainty exists between `medium implementation` and `heavy implementation`, choose `heavy implementation` first and de-escalate later with evidence.
+- Escalate based on known risk signals before coding; do not wait for implementation surprises to reveal that the route was too light.
 - Keep documentation in service of execution. Persist specs or plans only when the user asks, project policy requires it, or the artifact has clear reuse or handoff value.
 - Use one routing vocabulary from entry to completion so early triage and final verification talk about the same thing.
 - Once the route is chosen, state the selected route and the concrete reason to the user before substantial work begins.
@@ -81,6 +82,7 @@ Use this tier when one or more of these are true:
 - sequencing matters enough that a short explicit checklist is safer than ad hoc execution
 - verification needs multiple focused checks instead of one obvious command
 - design is mostly clear, but `lightweight implementation` is too loose
+- impacted boundaries and verification checkpoints can be named before coding
 
 Default path:
 1. Write a short explicit inline plan or checklist covering files, risks, and verification checkpoints.
@@ -89,6 +91,8 @@ Default path:
 4. Verify each checkpoint before moving on.
 5. Use `workflow-writing-plans` only if the inline checklist stops being sufficient.
 6. Use review when shared code, caller-callee continuity, or merge risk makes a second pass worthwhile.
+
+Do not keep work in `medium implementation` when rollout strategy, migration safety, or architecture choice is still unresolved. Those are `heavy implementation` + `workflow-brainstorming` triggers.
 
 Verification bar:
 - each checkpoint has a concrete command or scenario
@@ -105,9 +109,10 @@ Use this tier when one or more of these are true:
 - schema, persistence, migration, concurrency, rollout, or environment-wide config impact is involved
 - durable planning or handoff artifacts have clear value
 - verification spans multiple checkpoints, layers, or environments and is not obvious from a direct local command
+- two or more medium-or-higher risk signals appear together and at least one boundary is uncertain
 
 Default path:
-- use `workflow-brainstorming` when design, boundaries, or trade-offs need active refinement
+- use `workflow-brainstorming` by default when design, boundaries, migration choices, or trade-offs need active refinement
 - use `workflow-writing-plans` when a real execution plan is needed
 - prefer `workflow-executing-plans` for the default sequential implementation path
 - use `workflow-project-spec` whenever repo-specific implementation context should be initialized, loaded, or refreshed from `docs/workflow/spec/`
@@ -147,12 +152,13 @@ The point is visibility: routing should be understandable to the user, not just 
 When task paths, a diff, or known files are available, reuse the same dimensions as `workflow-project-check`.
 
 - `docs_only` or `test_only`: usually stay `lightweight` unless the user explicitly asks for broader process
-- `cross_layer`: upgrade to at least `medium`; use `heavy` when multiple boundaries or rollout-sensitive paths are involved
-- `contract_change`: upgrade to at least `medium`; use `heavy` when the contract is public, widely shared, or has many callers
+- `cross_layer`: usually `heavy`; keep it at `medium` only when boundaries are explicit, caller impact is known, and rollout risk is low
+- `contract_change`: upgrade to at least `medium`; use `heavy` when the contract is public, widely shared, has unknown caller impact, or needs compatibility strategy
 - `schema_change`: usually `heavy`
 - `config_change`: usually at least `medium`; use `heavy` when the config affects rollout, environments, or multiple layers
 - `shared_code_change`: treat as at least `medium` even if the diff is mechanically small
 - `new_file`: reconsider abstraction boundaries; often at least `medium` when the new file introduces reusable behavior
+- two or more non-light signals together (`shared_code_change`, `cross_layer`, `contract_change`, `config_change`, `schema_change`) should default to `heavy` at entry
 
 If `workflow-project-check` would later produce `checkMode=local+cross-layer`, the task usually should not have stayed `lightweight`.
 
@@ -173,6 +179,9 @@ Escalate from `medium` to `heavy` when:
 - cross-layer coordination or public contract changes appear
 - schema, persistence, migration, rollout, or environment-wide config impact appears
 - durable planning artifacts become necessary
+- the checklist no longer captures boundaries, compatibility assumptions, or verification scope with confidence
+
+If medium vs heavy is uncertain, escalate first and de-escalate only after ambiguity is removed.
 
 De-escalate from `heavy` to `medium` when:
 - design questions are resolved

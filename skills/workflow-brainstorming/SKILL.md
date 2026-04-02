@@ -1,13 +1,13 @@
 ---
 name: workflow-brainstorming
-description: Use when medium or heavy implementation still needs design work because requirements, boundaries, or important trade-offs are unclear; skip this for lightweight implementation and medium work that already has a clear checklist
+description: Use when medium or heavy implementation has non-trivial behavior change and still needs design refinement because boundaries, trade-offs, migration, rollout, or option choice are not fully clear before coding
 ---
 
 # Brainstorming Ideas Into Designs
 
 Use this skill to refine ambiguous or high-impact implementation work before writing code.
 
-Start by understanding the current project context, then decide whether the task really needs collaborative design work or whether `medium implementation` or `heavy implementation` can proceed with an already-clear checklist or plan.
+Start by understanding the current project context, then decide whether the task needs collaborative design work before coding. For `heavy implementation`, default to brainstorming unless boundaries, trade-offs, and rollout or migration choices are already explicit.
 
 ## When to Use
 
@@ -21,6 +21,16 @@ Use `workflow-brainstorming` when one or more are true:
 Do **not** use this skill for routine local changes such as small bug fixes, copy edits, narrow config changes, narrow test updates, or other `lightweight implementation` work that can be implemented safely with a short plan.
 
 If the work is already clear enough for `medium implementation`, skip brainstorming and move straight to a short explicit checklist or `workflow-writing-plans`, depending on the verification burden.
+
+## Strong Triggers (Default Yes)
+
+Run `workflow-brainstorming` by default when one or more are true:
+- the route is already `heavy implementation` and any architecture or product trade-off is unresolved
+- cross-layer changes include compatibility, migration, rollout, or rollback considerations
+- more than one viable design exists and the choice affects cost, risk, or timeline
+- the implementation direction depends on assumptions that are not yet validated
+
+Skipping brainstorming in these cases requires explicit evidence that boundaries, trade-offs, and verification strategy are already settled.
 
 ## Lightweight Exception
 

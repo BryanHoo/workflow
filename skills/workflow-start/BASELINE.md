@@ -61,3 +61,49 @@ Observed baseline from the old routing docs:
 Failure:
 - The user could not reliably tell whether the task was currently being handled as lightweight, medium, or heavy implementation.
 - The route announcement did not expose the intended verification and coordination bar clearly enough.
+
+## Scenario 5: Cross-layer work is still easy to keep in medium too long
+
+Prompt:
+
+> Add tenant-level notification preferences across UI, API, and worker processing, keep backward compatibility, and support staged rollout.
+
+Observed baseline from the current routing docs:
+- The core principle repeatedly says to choose the lightest path and only upgrade when the current path stops being sufficient.
+- Shared signals describe `cross_layer`, `contract_change`, and rollout-sensitive `config_change` as often heavy, but not with a hard tie-break rule.
+- Medium guidance can be interpreted as acceptable as long as a short checklist exists, even when the checklist hides cross-layer coupling risk.
+
+Failure:
+- The agent can rationalize starting in `medium implementation` and delay `heavy implementation` until after code-level surprises appear.
+- Heavy-grade planning and verification can start too late for changes that already had rollout and compatibility risk at triage time.
+
+## Scenario 6: Heavy tasks can skip brainstorming through false certainty
+
+Prompt:
+
+> Redesign sync conflict resolution across mobile client, backend API, and persistence model, including migration safety and rollback strategy.
+
+Observed baseline from the current routing docs:
+- Heavy guidance says to use `workflow-brainstorming` when requirements or trade-offs are unclear, but does not define stronger triggers for ambiguous high-impact decisions.
+- The docs emphasize avoiding unnecessary brainstorming and ceremony, which is useful for small work but leaves room to skip design discussion in risky work.
+- Red flags warn against forcing brainstorming on everything, but do not include the opposite warning about skipping brainstorming despite unresolved architecture choices.
+
+Failure:
+- The agent can claim the design is already clear and proceed without an explicit option/trade-off pass.
+- High-impact implementation can start without validating boundaries, migration assumptions, or rollback shape with the user.
+
+## GREEN Verification Replay (After Rule Updates)
+
+### Replay A: tenant notification preferences across UI/API/worker with staged rollout
+
+Expected route after updates:
+- classify as `heavy implementation` at entry because `cross_layer` + contract/compatibility + rollout-sensitive concerns combine into non-light signals
+- use `workflow-brainstorming` if compatibility, rollout, or option trade-offs are still unresolved
+- proceed to `workflow-writing-plans` only after design assumptions are explicit
+
+### Replay B: conflict-resolution redesign with migration and rollback safety
+
+Expected route after updates:
+- classify as `heavy implementation` due migration and persistence risk
+- trigger `workflow-brainstorming` by default because trade-offs and rollback shape are architecture-level decisions
+- freeze execution plan only after brainstorming clarifies boundaries and verification strategy

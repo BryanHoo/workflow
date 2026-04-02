@@ -1,6 +1,6 @@
 ---
 name: workflow-start
-description: Use when starting a conversation to triage the task, choose the lightest workflow that preserves quality, and invoke any relevant skills before acting
+description: Use when starting a conversation to triage route selection, choose the lightest safe workflow, and escalate to heavy plus workflow-brainstorming when uncertainty, cross-layer impact, or high-risk trade-offs appear
 ---
 
 <SUBAGENT-STOP>
@@ -41,7 +41,7 @@ Read `references/task-routing.md` before choosing an implementation tier. It def
 
 ## The Rule
 
-**Invoke relevant or requested skills BEFORE substantial action.** Start by classifying the task type, then choose the lightest implementation tier that still protects quality.
+**Invoke relevant or requested skills BEFORE substantial action.** Start by classifying the task type, then choose the lightest implementation tier that still covers current uncertainty, blast radius, and verification risk. If `medium` vs `heavy` is unclear, start with `heavy` and de-escalate later when evidence supports it.
 
 ```dot
 digraph skill_flow {
@@ -55,7 +55,7 @@ digraph skill_flow {
     "Lightweight implementation" [shape=box];
     "Medium implementation" [shape=box];
     "Heavy implementation" [shape=box];
-    "Design or scope unclear?" [shape=diamond];
+    "Unresolved design or trade-off?" [shape=diamond];
     "Use workflow-brainstorming" [shape=box];
     "Need a real execution plan?" [shape=diamond];
     "Use workflow-writing-plans" [shape=box];
@@ -72,9 +72,9 @@ digraph skill_flow {
     "Choose implementation tier" -> "Medium implementation" [label="bounded multi-file or shared-code change"];
     "Choose implementation tier" -> "Heavy implementation" [label="cross-layer, unclear, or high-risk"];
     "Debugging or failure investigation" -> "Choose implementation tier" [label="cause understood"];
-    "Heavy implementation" -> "Design or scope unclear?";
-    "Design or scope unclear?" -> "Use workflow-brainstorming" [label="yes"];
-    "Design or scope unclear?" -> "Need a real execution plan?" [label="no"];
+    "Heavy implementation" -> "Unresolved design or trade-off?";
+    "Unresolved design or trade-off?" -> "Use workflow-brainstorming" [label="yes"];
+    "Unresolved design or trade-off?" -> "Need a real execution plan?" [label="no"];
     "Use workflow-brainstorming" -> "Need a real execution plan?";
     "Need a real execution plan?" -> "Use workflow-writing-plans" [label="yes"];
     "Need a real execution plan?" -> "Use workflow-executing-plans" [label="no"];
@@ -85,6 +85,10 @@ digraph skill_flow {
 ## Routing Rules
 
 Use `references/task-routing.md` as the routing source of truth. Reuse its route families, implementation tiers, and shared routing signals rather than inventing a fresh taxonomy in the moment.
+
+### Risk-first tie-breaker
+
+When a task plausibly fits both `medium implementation` and `heavy implementation`, default to `heavy implementation` first. De-escalate only after boundaries, dependencies, and verification checkpoints become explicit enough for a bounded checklist.
 
 ## User-visible routing
 
@@ -132,14 +136,17 @@ Use a medium route when the work is more than a tight local fix but still bounde
 - multiple related files in one subsystem slice
 - bounded contract or config continuity concerns
 - verification that needs several focused checks instead of one obvious command
+- impacted boundaries and verification checkpoints that are clear before coding
 
 Default to a short inline plan or checklist, then execute sequentially checkpoint by checkpoint in the current session. If the checklist stops being sufficient, upgrade to `workflow-writing-plans`. Do not skip this middle route by forcing the task into either ad hoc local execution or the heaviest planning flow.
 
+`medium implementation` is for bounded execution, not for discovery. If you cannot state impacted boundaries, likely callers, and verification checkpoints before coding, escalate to `heavy implementation` and use `workflow-brainstorming`.
+
 ### Heavy implementation
 
-Use heavier workflows only when they add real value:
+Use `heavy implementation` when uncertainty or cross-layer risk can invalidate a short checklist:
 
-- `workflow-brainstorming` for unclear requirements, important trade-offs, or larger design work
+- `workflow-brainstorming` by default when heavy work still has unresolved boundaries, migration or rollout choices, or more than one viable design option
 - `workflow-writing-plans` when sequencing, coordination, or handoff needs a real plan
 - `workflow-executing-plans` for complex but mostly sequential work
 - `workflow-project-spec` whenever repo-specific implementation context should be initialized, loaded, or refreshed from `docs/workflow/spec/`
@@ -155,9 +162,11 @@ When file paths, diff context, or repo-aware signals are available, reuse the sa
 
 - `docs_only` and `test_only` usually stay light
 - `shared_code_change` means the blast radius may be larger than the diff size suggests, so it should usually be at least medium
-- `cross_layer` and `contract_change` should usually be at least medium, and often heavy when many callers or boundaries are involved
+- `cross_layer` is usually heavy; keep it at medium only when boundaries are explicit, caller impact is known, and rollout risk is low
+- `contract_change` should usually be at least medium, and is heavy when the contract is widely shared, caller impact is uncertain, or compatibility strategy is required
 - `schema_change` is usually heavy
 - most `config_change` work should be at least medium, and heavy when rollout or environment coordination matters
+- if two or more medium-or-higher signals appear together, classify as `heavy implementation` at entry and de-escalate only after uncertainty is removed
 
 This keeps entry routing and final verification aligned around one vocabulary.
 
@@ -178,6 +187,8 @@ These thoughts mean STOP and re-triage:
 | "Let me skip the relevant skill"             | If a skill fits, use it.                                      |
 | "I remember this skill"                      | Skills evolve. Read current version.                          |
 | "Everything should go through brainstorming" | Lightweight changes usually should not.                       |
+| "I can keep this medium until coding reveals risk" | Route based on known risk signals before coding, not after surprises. |
+| "I already have one idea, so brainstorming is unnecessary" | Heavy work with unresolved trade-offs still needs explicit option review. |
 | "Everything should use subagents"            | Parallelism only helps when tasks are independent.            |
 | "Let's create docs just in case"             | Persist docs only when they help execution or handoff.        |
 
@@ -196,7 +207,7 @@ Examples:
 - "Update copy in one component" → lightweight implementation
 - "Adjust shared validation used by two callers" → medium implementation
 - "Simplify this recently changed module without changing behavior" → workflow-code-simplifier
-- "Design and build a cross-layer feature" → heavy implementation, then workflow-brainstorming and workflow-writing-plans as needed
+- "Design and build a cross-layer feature with migration or rollout risk" → heavy implementation, workflow-brainstorming first, then workflow-writing-plans
 - "Execute this clear plan in one session" → workflow-executing-plans
 - "Several independent tasks" → subagent or parallel workflow only if support is reliable; otherwise execute sequentially in the current session
 - "Work is implemented and needs project-aware verification" → workflow-project-check, then workflow-verification-before-completion

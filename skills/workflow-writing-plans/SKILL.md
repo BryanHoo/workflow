@@ -15,6 +15,7 @@ If the repo contains `docs/workflow/spec/`, announce that you are also using `wo
 If the work will end with project-aware verification, announce that `workflow-project-check` will be used to derive the final verification scope from the actual diff.
 
 Do not create a heavyweight plan for work that still fits `lightweight implementation` or a clear `medium implementation` checklist.
+If `heavy implementation` still has unresolved architecture, migration, or rollout choices, run `workflow-brainstorming` before freezing the plan.
 
 ## Choose the Right Plan Weight
 
